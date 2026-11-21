@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://service-request-triage.local/aidd/verification-result.schema.json",
+  "title": "AIDD deterministic verification result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "ticket",
+    "status",
+    "command",
+    "exitCode",
+    "executedAt",
+    "workingTreeFingerprint",
+    "changedFiles",
+    "outputLog"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "ticket": {
+      "type": "string",
+      "pattern": "^[A-Z0-9][A-Z0-9-]*$"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "command": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exitCode": {
+      "type": "integer"
+    },
+    "executedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "workingTreeFingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "changedFiles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "outputLog": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://service-request-triage.local/aidd/feature-state.schema.json",
+  "title": "AIDD feature controller state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "workflowVersion",
+    "ticket",
+    "status",
+    "currentPhase",
+    "branch",
+    "createdAt",
+    "updatedAt",
+    "phaseAttempts",
+    "taskAttempts",
+    "sameFailureCount",
+    "nextAction",
+    "humanReviewRequired",
+    "stopBlocks"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "workflowVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ticket": {
+      "type": "string",
+      "pattern": "^[A-Z0-9][A-Z0-9-]*$"
+    },
+    "status": {
+      "enum": [
+        "NEW",
+        "PREPARING",
+        "READY_FOR_IMPLEMENTATION",
+        "IMPLEMENTING",
+        "VERIFYING",
+        "REPAIRING",
+        "READY_FOR_USER_COMMIT",
+        "SESSION_CHECKPOINT_READY",
+        "HUMAN_REQUIRED",
+        "BLOCKED",
+        "CANCELLED"
+      ]
+    },
+    "currentPhase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "currentTask": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "branch": {
+      "type": "string",
+      "minLength": 1
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "phaseAttempts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "taskAttempts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "lastFailureFingerprint": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sameFailureCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "latestEvidence": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nextAction": {
+      "type": "string"
+    },
+    "humanReviewRequired": {
+      "type": "boolean"
+    },
+    "stopBlocks": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

@@ -1,0 +1,29 @@
+# AIDD generated/local files
+diagrams/out/
+reports/tmp/
+.claude/logs/
+.claude/settings.local.json
+.aidd/cache/
+.aidd/metrics/
+.aidd/runtime/
+pre-log.json
+*.tmp
+
+# Secrets and local env
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+*.p12
+*.jks
+
+# Build output, IDE, and local caches
+target/
+.idea/
+*.iml
+**/__pycache__/
+
+# macOS
+.DS_Store

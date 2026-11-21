@@ -48,3 +48,24 @@
 ## Out of scope
 
 Real banking data, refunds, claims registration, production routing, multi-tenant authentication, RAG over private sources, shell tools, autonomous code modification, any real customer account actions.
+
+## AIDD workflow
+
+This repository uses the AIDD lifecycle (`workflow.md`, `docs/README_AIDD.md`).
+Hard rules: `.claude/PROJECT_RULES.md`. Engineering standards: `conventions.md`.
+A ticket is one `FEATURE-00X` issue.
+
+```text
+/feature-development FEATURE-00X "Short title/context"
+```
+
+- Application code/config writes are blocked by hooks until the PRD
+  (`PRD_READY`), plan (`PLAN_APPROVED`), ticket ADRs (`ACCEPTED`), and tasklist
+  (`TASKLIST_READY`) exist under `docs/prd|plan|adr|tasklist/`.
+- Ticket ADRs are files `docs/adr/<TICKET>-<slug>.md`; baseline decisions in
+  `docs/adr/README.md` are referenced by ID.
+- `/review` (the `reviewer` subagent) is the only independent verifier.
+- The lifecycle stops at `READY_FOR_USER_COMMIT`; the user commits and opens
+  the PR. Durable state: `.aidd/runtime/features/<TICKET>/state.json`.
+- Manual stages, `/small-change`, and `/bugfix` are described in
+  `docs/README_AIDD.md`.
