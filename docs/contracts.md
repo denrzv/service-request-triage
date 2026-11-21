@@ -77,6 +77,8 @@ record TriageResult(
 
 **Implemented in FEATURE-003 (ADR `FEATURE-003-taxonomy-policy-engine`):** the enums above and the decision records live in `domain.model` with two typed refinements. `ChoiceJudgment<E extends Enum<E>>` has an enum-typed `selected` and enum-keyed `probabilities`, so invalid categories are rejected when a `SemanticAssessment` is built. `RoutingDecision.rationaleCodes` is a `List<RationaleCode>` (closed enum emitted by the engine). `RoutingDecision` also has `policyCalibrated`. `humanApprovalRequired` is true exactly for `HUMAN_REVIEW`, `ABSTAIN` always proposes `UNCLASSIFIED`, and `DRAFT_PROPOSAL` / `LLM_INVESTIGATION` never do. `ClassificationProposal` requires `taxonomyVersion`; `RoutingDecision` requires `policyVersion`. `Taxonomy`, `ReasonCode`, `ClassificationPolicy`, `PolicyThresholds`, `ClassificationRule` and `RuleCondition` model the versioned definitions. `ProposedTaskAction` and `TriageResult` are left for FEATURE-010/012.
 
+**Implemented in FEATURE-006:** `IncomingCustomerRequest` (unvalidated carrier; the graph's `ValidateInput` applies the bounds, `toString` omits the message), `TriageStatus` (values as above; v1 uses `CLASSIFIED`, `AWAITING_HUMAN`, `COMPLETED`, `PARTIAL`, `FAILED`, with `RECEIVED` as initial state and `INVESTIGATING` reserved) and `DecisionTraceEvent(int sequence, String node, String routeLabel, String nextNode)` in `domain.model`.
+
 **Version and uncertainty invariants:** validate enum mappings, model outputs and probability ranges; do not treat model `confidence` as truth. `UNCLASSIFIED`, `ABSTAIN` and `HUMAN_REVIEW` are normal safe outcomes.
 
 ## 2. Ports (inside the application boundary)
@@ -233,7 +235,9 @@ record TriageGraphState(
 ) {}
 ```
 
-Use Spring AI Alibaba's actual `StateGraph` / state update strategy API once pinned. Graph state and domain SR lifecycle state are not the same thing. On resume, verify checkpoints carry state and do not accidentally replay committed mock draft creations. `triageId` is the stable idempotency key for side effects.
+Use Spring AI Alibaba's actual `StateGraph` / state update strategy API once pinned.
+
+**Implemented in FEATURE-006:** `graph.TriageGraphState(input, policyVersion, taxonomyVersion, questionSetVersion, resolvedModel, semanticAssessment, providerError, gateOutcome, routingDecision, investigationAttempts, status, failure, route, trace)`; `triageId()` is derived from `input`, the trace is the event list and there is no separate `investigation` field until FEATURE-009. It is stored as the only `OverAllState` key (`triage`, `KeyStrategy.REPLACE`) in the strict JSON form `triage-graph-state-v1` produced by `TriageGraphStateCodec` (explicit wire records, enum names as strings, unknown fields/enums and other schema versions rejected). `providerError` keeps the exception class name only; `failure` is `TriageFailure(code, node, detail)` with a non-sensitive detail. A format change requires a new schema version; FEATURE-011 checkpoints will persist this form. Graph state and domain SR lifecycle state are not the same thing. On resume, verify checkpoints carry state and do not accidentally replay committed mock draft creations. `triageId` is the stable idempotency key for side effects.
 
 ## 5a. Evaluation goldset record (FEATURE-004)
 

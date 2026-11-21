@@ -106,6 +106,8 @@ Version taxonomy as `taxonomyVersion`. Do not collapse meaningful multi-intent t
 | WaitForHuman | pause/interruption (milestone 4) | Approve/correct/reject |
 | BuildTrace | deterministic | Decision report and metrics |
 
+**Implemented in FEATURE-006 (ADR `FEATURE-006-stategraph-foundation`):** `graph.TriageGraph` compiles the nodes `ValidateInput`, `LoadTaxonomy`, `JevClassify`, `ConfidenceGate`, `FinalPolicyGate`, `BuildTrace` with conditional edges whose labels (`valid|invalid`, `loaded|failed`, `classified|error`, `clear|ambiguous|abstain|error`, `decided`, plus `failed` from any node) come from one route table. `ConfidenceGate` only labels the path; `FinalPolicyGate` is the only writer of the Policy Engine decision. With no investigator yet, all gate labels lead to `FinalPolicyGate`, which treats the investigation budget as used up; FEATURE-009 remaps `ambiguous`. `LlmInvestigate`, `CreateMockDraft` and `WaitForHuman` are not implemented yet. Iterations are bounded (`recursionLimit` 12); a run stopped early is `PARTIAL`, failures are `FAILED` with a failure code.
+
 Plan one bounded fallback to the LLM and optionally one re-evaluation after the LLM. Prevent graph loops from consuming unbounded model tokens. No model output may change the permitted graph structure or tool privileges.
 
 **Required edge rules:**
@@ -139,6 +141,8 @@ All tools are read-only, scoped, sanitized, and never access the evaluation gold
 ## 8. Durability and recovery
 
 M1/M2: in-memory graph for simplest experiments; no durable guarantee. M4: checkpoint state with PostgreSQL, then test restart mid-human-review. The framework's checkpoint/resume semantics (incl. interrupt/resume API) must be validated in a Java integration test before describing them as guaranteed. External mock side effects are at-least-once under recovery and must have deterministic idempotency keys.
+
+**Current state (FEATURE-006):** the graph runs in memory only. Each run uses its own framework checkpoint thread on an in-memory saver that is released when the run ends; nothing is persisted, and a JVM restart loses any run in progress. No durability or resume guarantee is claimed until FEATURE-011 adds and tests PostgreSQL checkpoints.
 
 We intentionally **do not combine Temporal with the graph** in v1. A graph checkpointer persists graph state at supported boundaries; it is **not an automatic exactly-once transactional workflow engine**. Human approval and SR lifecycle remain explicit application concerns.
 
