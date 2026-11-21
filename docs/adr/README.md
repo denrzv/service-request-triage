@@ -138,10 +138,10 @@
 
 1. Exact released Graph checkpointer artifact and pause/resume semantics; **do not invent** checkpoint API names.
 2. DeepSeek Spring AI 1.1.2 native adapter support for the chosen current model alias; verify tool calls and structured responses.
-3. Jev alias/current model pinning: the API can resolve `jev-latest` to a different model over time.
+3. Jev alias/current model pinning: the API can resolve `jev-latest` to a different model over time. FEATURE-005 records the resolved model per call (`jev-1.14.0` on 2026-11-21) and replays recorded answers offline.
 4. Whether hierarchical Jev classification (beam search) improves over flat independent questions enough to justify extra calls.
 5. Whether v1 can simulate a human review with a synchronous mock before implementing real graph interrupts.
-6. Calibration on goldset: whether confidence alone, probability margin, Companion Noul or risk-weighted thresholds provide best selective accuracy.
+6. Calibration on goldset: whether confidence alone, probability margin, Companion Noul or risk-weighted thresholds provide best selective accuracy. First evidence (FEATURE-005, `reports/evaluation/feature-005-jev-baseline/`): no single threshold reaches an illustrative 0.10 wrong-auto-route rate on the calibration split; joint or risk-specific thresholds remain open for FEATURE-007.
 
 ## Reference documentation
 

@@ -1,0 +1,230 @@
+# FEATURE-005: Tasklist
+Status: TASKLIST_READY
+
+References:
+- PRD: `docs/prd/FEATURE-005.prd.md`
+- Research: `docs/research/FEATURE-005.md`
+- Plan: `docs/plan/FEATURE-005.md`
+- ADR: `docs/adr/FEATURE-005-jev-baseline-benchmark.md`
+
+All Maven commands use `JAVA_HOME=/usr/lib/jvm/temurin-25`. Test-scope paths are under
+`src/test/java/io/github/denrzv/triage/evaluation/benchmark/` unless stated otherwise.
+
+## Tasks
+- [x] TASK-1: Versioned triage question set and strict Jev-answer mapper
+  - Goal: Runtime `triage-jev-v1` question set and `JevClassificationResult` to `SemanticAssessment` mapping.
+  - Size: M
+  - Risk: standard
+  - Evidence: docs/research/FEATURE-005.md (Repo map, Integrations)
+  - Requirements:
+    - PRD: AC4, Goals (question set, mapper)
+    - Plan: `Architecture / Flow`, `Contracts`
+  - Target files:
+    - `src/main/java/io/github/denrzv/triage/application/assessment/TriageQuestionSets.java`
+    - `src/main/java/io/github/denrzv/triage/application/assessment/JevAssessmentMapper.java`
+    - `src/main/java/io/github/denrzv/triage/application/assessment/package-info.java`
+  - Reference files: `src/main/java/io/github/denrzv/triage/domain/model/SemanticAssessment.java`
+  - Test files:
+    - `src/test/java/io/github/denrzv/triage/application/assessment/TriageQuestionSetsTest.java`
+    - `src/test/java/io/github/denrzv/triage/application/assessment/JevAssessmentMapperTest.java`
+  - Expected changes:
+    - Three Choice questions with lower-case enum-name criteria covering every constant; four Noul questions incl.
+      Companion Noul `taxonomy_fit`; version constant.
+    - Mapper rejects wrong version, missing answer, wrong answer type, unknown or missing choice keys.
+  - Acceptance:
+    - AC4: each Choice keeps selected value, confidence and probabilities; each Noul maps to its own field.
+  - Validation:
+    - Fast: `./mvnw -q -Dtest='TriageQuestionSetsTest,JevAssessmentMapperTest,ArchitectureBoundaryTest' test`
+    - Broader (only if needed): Not applicable
+  - Dependencies: none
+  - Out of scope: `ClassificationModelPort`, Spring wiring
+  - Notes: Changing any question text or key requires a new version (ADR decision 2).
+  - Completion notes: Added `application.assessment.TriageQuestionSets` (`triage-jev-v1`: Choice primary_intent/problem_domain/requested_outcome with lower-case enum-name criteria in declaration order; Noul refund_requested/technical_problem/multi_intent and Companion Noul taxonomy_fit) and `JevAssessmentMapper` (strict: version, presence, answer type, exact key set; domain validation failures rewrapped as `JevProtocolException`). Test fixture `JevResults` is reused by benchmark tests. Checks: `./mvnw -q -Dtest='TriageQuestionSetsTest,JevAssessmentMapperTest,ArchitectureBoundaryTest' test` passed on JDK 25.
+
+- [x] TASK-2: Baseline runner, keyword assessor and case outcomes
+  - Goal: Run both baselines through the unchanged Policy Engine without investigation budget.
+  - Size: M
+  - Risk: standard
+  - Evidence: docs/research/FEATURE-005.md (Repo map: engine investigation budget)
+  - Requirements:
+    - PRD: AC1, Edge scenarios 1, 2, 7
+    - Plan: `Architecture / Flow`, `Reliability`
+  - Target files:
+    - `BaselineMode.java`, `CaseOutcome.java`, `KeywordRulesAssessor.java`, `BaselineRunner.java`
+  - Reference files: `src/main/java/io/github/denrzv/triage/application/policy/ClassificationPolicyEngine.java`
+  - Test files:
+    - `KeywordRulesAssessorTest.java`, `BaselineRunnerTest.java`
+  - Expected changes:
+    - Keyword assessor yields a valid one-hot `SemanticAssessment` (authored from taxonomy descriptions and dev only).
+    - Runner: `JevException` -> `modelUnavailable`, error class recorded; attempts = `maxInvestigations`.
+  - Acceptance:
+    - AC1: both modes produce one outcome per case; no `LLM_INVESTIGATION` route.
+  - Validation:
+    - Fast: `./mvnw -q -Dtest='KeywordRulesAssessorTest,BaselineRunnerTest' test`
+    - Broader (only if needed): Not applicable
+  - Dependencies: TASK-1
+  - Out of scope: metrics, report
+  - Notes: Only `message` and `channel` are passed to the port.
+  - Completion notes: Added `BaselineMode`, `CaseOutcome` (gold kept for scoring only; assessment XOR providerError), `KeywordRulesAssessor` (ordered word-boundary keyword rules authored from taxonomy descriptions and dev split only; one-hot, confidence 1.0, Noul 0/1) and `BaselineRunner` (only message+channel leave it; engine called with attempts = `maxInvestigations`; `JevException` incl. mapper rejection -> `modelUnavailable` with usage kept when the call returned; `redecide` for threshold exploration). Test helper `ShippedDefinitions.policyV1()` and `BenchmarkFixtures`. Checks: `./mvnw -q -Dtest='KeywordRulesAssessorTest,BaselineRunnerTest' test` passed.
+
+- [x] TASK-3: Record/replay Jev ports and live port factory
+  - Goal: Offline operation from recorded live answers; opt-in live port.
+  - Size: M
+  - Risk: standard
+  - Evidence: docs/research/FEATURE-005.md (Constraints discovered)
+  - Requirements:
+    - PRD: AC2, Edge scenario 3, 5
+    - Plan: `Contracts`, `Security & Privacy`
+  - Target files:
+    - `JevRecording.java` (codec, `RecordingPort`, `ReplayPort`)
+    - `src/test/java/io/github/denrzv/triage/infrastructure/typesafe/LiveJevPorts.java`
+  - Reference files: `src/test/java/io/github/denrzv/triage/infrastructure/typesafe/JevLiveSmokeTest.java`
+  - Test files:
+    - `JevRecordingTest.java`
+  - Expected changes:
+    - Recording line: message SHA-256, resolved model, usage, latency, attempts, typed answers or error class.
+    - Replay fails on missing or duplicate hash; replays errors as the same exception category.
+  - Acceptance:
+    - AC2: replay needs no key or network; recordings contain no message text or labels.
+  - Validation:
+    - Fast: `./mvnw -q -Dtest='JevRecordingTest' test`
+    - Broader (only if needed): Not applicable
+  - Dependencies: TASK-1
+  - Out of scope: live execution
+  - Notes: Strict parser (unknown fields rejected).
+  - Completion notes: Added `JevRecording` (strict JSONL codec; `Line` with message SHA-256, channel, question-set version, OK/ERROR outcome, resolved model, usage, latency, attempts, typed Choice/Noul answers or failure class; `RecordingPort` decorator records successes and failures and rethrows; `ReplayPort` keyed by hash, fails on missing/duplicate/mismatched recordings and replays failures as the same `JevException` category) and test-scope `infrastructure.typesafe.LiveJevPorts` factory with application.yml defaults. Recordings never contain message text, labels or case IDs. Checks: `./mvnw -q -Dtest='JevRecordingTest' test` passed.
+
+- [x] TASK-4: Metrics and cost summary
+  - Goal: Quality, abstention, OOT, signal and cost/latency metrics per mode and split.
+  - Size: M
+  - Risk: standard
+  - Evidence: docs/evaluation.md sections 3 and 8
+  - Requirements:
+    - PRD: AC3, AC4, AC6
+    - Plan: `Observability`
+  - Target files:
+    - `BenchmarkMetrics.java`, `ClassMetrics.java`, `CostSummary.java`
+  - Reference files: `docs/evaluation.md`
+  - Test files:
+    - `BenchmarkMetricsTest.java`, `CostSummaryTest.java`
+  - Expected changes:
+    - Macro-F1 formal type/intent/domain, confusion matrix, complaint recall/FN rate, route distribution, abstain and
+      review rates, coverage, wrong auto-route (and harmful subsets), OOT success, provider errors.
+    - Token totals/means, latency p50/p95, cost per 1,000 requests when prices are given.
+  - Acceptance:
+    - AC3/AC6: hand-computed fixtures match.
+  - Validation:
+    - Fast: `./mvnw -q -Dtest='BenchmarkMetricsTest,CostSummaryTest' test`
+    - Broader (only if needed): Not applicable
+  - Dependencies: TASK-2
+  - Out of scope: thresholds
+  - Notes: Classes with no gold and no prediction are excluded from macro averages.
+  - Completion notes: Added `BenchmarkMetrics` (formal-type per-class P/R/F1, macro-F1, strict and lenient accuracy, 5x5 confusion; intent/domain macro-F1 and accuracies over assessed cases; complaint recall/FN rate/auto-routed claims; route distribution, strict/lenient route accuracy, abstain/review rates, coverage, wrong auto-route rate, selective accuracy, abstain precision/recall; OOT success and safe rates; Choice top probability vs confidence vs margin with confidence split by correctness, Companion Noul and multi-intent means by gold group), `ClassMetrics`, `Rates` (undefined -> null, nearest-rank percentile) and `CostSummary` (tokens, attempts, p50/p95/max latency, cost only with prices). Checks: `./mvnw -q -Dtest='BenchmarkMetricsTest,CostSummaryTest' test` passed.
+
+- [x] TASK-5: Calibration-only threshold explorer
+  - Goal: One-at-a-time threshold sweep on DEV with provisional candidates and one held-out check.
+  - Size: M
+  - Risk: elevated
+  - Evidence: ADR FEATURE-005 decision 5
+  - Requirements:
+    - PRD: AC5, Edge scenario 4
+    - Plan: `Project invariants`
+  - Target files:
+    - `CalibrationSet.java`, `ThresholdExplorer.java`
+  - Reference files: `src/main/java/io/github/denrzv/triage/domain/model/PolicyThresholds.java`
+  - Test files:
+    - `ThresholdExplorerTest.java`
+  - Expected changes:
+    - `CalibrationSet` rejects any non-DEV case; sweep rows per threshold and grid value; candidate = max coverage
+      with wrong auto-route rate <= target, ties to the lower wrong rate, then the least restrictive value; none
+      when unattainable.
+  - Acceptance:
+    - AC5: held-out cases cannot enter exploration.
+  - Validation:
+    - Fast: `./mvnw -q -Dtest='ThresholdExplorerTest' test`
+    - Broader (only if needed): Not applicable
+  - Dependencies: TASK-4
+  - Out of scope: writing a calibrated policy file
+  - Notes: Policy `v1` itself stays unchanged.
+  - Completion notes: Added `CalibrationSet` (rejects any non-DEV or mixed-mode outcome) and `ThresholdExplorer` (one-at-a-time sweep of taxonomyFitMin, choiceConfidenceMin, choiceMarginMin, multiIntentMax over 0.00-1.00 step 0.05 on a copy of the base policy by re-deciding recorded assessments; candidate = max coverage with wrong auto-route rate <= target, ties to lower wrong rate then least restrictive value, none if no auto-routes qualify; joint provisional `<base>-candidate` policy with `calibrated=false`; `redecide` for the single held-out check). Tie-break wording aligned in ADR decision 5 and this task. Checks: `./mvnw -q -Dtest='ThresholdExplorerTest' test` passed.
+
+- [x] TASK-6: Benchmark run orchestration, report writer and opt-in live entry point
+  - Goal: Deterministic report artifacts with run metadata; live opt-in test.
+  - Size: L
+  - Risk: standard
+  - Evidence: docs/evaluation.md section 8
+  - Requirements:
+    - PRD: AC1, AC2, AC6, AC7
+    - Plan: `Architecture / Flow`, `Security & Privacy`
+  - Target files:
+    - `BenchmarkRun.java`, `ReportWriter.java`, `JevBaselineLiveBenchmarkTest.java`
+  - Reference files: `src/test/java/io/github/denrzv/triage/evaluation/goldset/GoldsetLoader.java`
+  - Test files:
+    - `ReportWriterTest.java`
+  - Expected changes:
+    - Dataset hashes verified against manifest; metadata (versions, alias, resolved models, price source).
+    - `report.md`, `metrics.json`, `confusion-<mode>-<split>.csv`, `cases-<mode>.csv`, `threshold-sweep.csv`;
+      `Locale.ROOT`, sorted output, no wall-clock timestamps.
+    - Live test gated by `JEV_BENCHMARK_LIVE=true` and `JEV_API_KEY`, call budget check.
+  - Acceptance:
+    - AC7: files contain dataset hashes and a limitations section; no messages or per-case gold labels.
+  - Validation:
+    - Fast: `./mvnw -q -Dtest='ReportWriterTest' test`
+    - Broader (only if needed): Not applicable
+  - Dependencies: TASK-3, TASK-5
+  - Out of scope: committing a run
+  - Notes: The run directory is overwritten only by an explicit run.
+  - Completion notes: Added `BenchmarkRun` (manifest hash verification, both modes x both splits, metrics, DEV-only exploration, held-out check, cost; `Parameters` persisted as `run.json` with runId pattern and price validation; `Metadata` without wall-clock time), `ReportWriter` (report.md, metrics.json rounded to 6 dp, confusion CSVs, per-case CSVs without message text or gold labels, threshold-sweep.csv; Locale.ROOT, LF, stable order) and opt-in `JevBaselineLiveBenchmarkTest` (`JEV_BENCHMARK_LIVE=true` + key, call budget, writes recordings, parameters and report). `ReportWriterTest` runs the real goldset with a label-blind scripted fake incl. provider failures and checks files, provenance, determinism and no message/rationale leakage. Checks: `./mvnw -q -Dtest='ReportWriterTest' test` passed.
+
+- [x] TASK-7: Live baseline run and offline reproducibility test
+  - Goal: Commit one live run and prove it regenerates byte-identically offline.
+  - Size: M
+  - Risk: elevated
+  - Evidence: docs/research/FEATURE-005.md (Integrations: live endpoint verified)
+  - Requirements:
+    - PRD: AC2, AC6, AC7, Main scenario 1
+    - Plan: `Testing strategy`
+  - Target files:
+    - `reports/evaluation/feature-005-jev-baseline/*`
+    - `BaselineBenchmarkReproducibilityTest.java`
+  - Reference files: Not applicable
+  - Test files:
+    - `BaselineBenchmarkReproducibilityTest.java`
+  - Expected changes:
+    - One opt-in live run over 240 cases; recordings and report committed.
+    - Default-build test replays and compares every file.
+  - Acceptance:
+    - AC2/AC7: CI regenerates the committed report without credentials.
+  - Validation:
+    - Fast: `./mvnw -q -Dtest='BaselineBenchmarkReproducibilityTest,GoldsetIsolationTest' test`
+    - Broader (only if needed): `./mvnw -q verify`
+  - Dependencies: TASK-6
+  - Out of scope: tuning policy `v1`
+  - Notes: Price parameters from the TypeSafe Models page (2026-11-21).
+  - Completion notes: Ran the opt-in live benchmark once (2026-11-21, `jev-latest` -> `jev-1.14.0`, 240/240 calls HTTP 200 on the first attempt, 191572 input tokens, est. USD 0.008) and committed `reports/evaluation/feature-005-jev-baseline/` (recordings, run.json, report, metrics, CSVs). Added `BaselineBenchmarkReproducibilityTest` (replays recordings offline and requires byte-identical files; recordings contain no message text, rationale or case IDs; no provider errors or LLM routes; `JEV_BENCHMARK_REGENERATE=true` rewrites after a format change) and a wrong-auto-route-by-stratum breakdown in metrics/report. Pinned `reports/evaluation/**` to LF in `.gitattributes`. Checks: `./mvnw -q -B verify` passed.
+
+- [x] TASK-8: Documentation
+  - Goal: Document the harness, contracts and results.
+  - Size: S
+  - Risk: standard
+  - Evidence: Plan `Quality gate impact` (Docs update required)
+  - Requirements:
+    - PRD: AC7
+    - Plan: `Rollout plan`
+  - Target files:
+    - `README.md`, `docs/evaluation.md`, `docs/contracts.md`, `docs/adr/README.md`
+  - Reference files: Not applicable
+  - Test files:
+    - Not applicable
+  - Expected changes:
+    - README "Jev baseline benchmark" section with exact commands; implemented notes in evaluation/contracts; ADR
+      index open decision 6 points to the report.
+  - Acceptance:
+    - AC7: a reader can rerun offline and live.
+  - Validation:
+    - Fast: `python3 scripts/validate-workflow.py --ticket FEATURE-005`
+    - Broader (only if needed): Not applicable
+  - Dependencies: TASK-7
+  - Out of scope: diagrams
+  - Notes: English only.
+  - Completion notes: README gains the "Jev baseline benchmark (FEATURE-005)" section (contract, harness, offline/regenerate/live commands, held-out results and interpretation) and a documentation-map link; `docs/evaluation.md` has an implemented note with findings and metric definitions; `docs/contracts.md` section 3a documents `triage-jev-v1` and the mapper rules; `docs/adr/README.md` open decisions 3 and 6 point to the FEATURE-005 evidence. Checks: `python3 scripts/validate-workflow.py --ticket FEATURE-005`.

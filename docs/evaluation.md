@@ -40,6 +40,25 @@ Every record carries `caseId`, `message`, `channel`, `labelSource`, `taxonomyVer
 
 All modes must use **same taxonomy, held-out labels, policy invariants and input texts**. Model versions, question/prompt versions, graph version and retries must be captured.
 
+> **Implemented in FEATURE-005 (RULES_ONLY and JEV_ONLY):** test-scope harness `evaluation.benchmark`, question set
+> `triage-jev-v1`, policy `v1` with the investigation budget treated as used up (no LLM fallback). Committed run with
+> offline replay and byte-for-byte reproducibility test: `reports/evaluation/feature-005-jev-baseline/`. Decisions:
+> `docs/adr/FEATURE-005-jev-baseline-benchmark.md`. Findings of that run (synthetic data, indicative only):
+> - Held-out formal-type macro-F1: JEV_ONLY 0.872 vs RULES_ONLY 0.511 (rules 0.795 on the development split they were
+>   written from, so they overfit); complaint recall 0.786 vs 0.464; out-of-taxonomy cases are proposed as
+>   `UNCLASSIFIED` by both (via the none-fit rule path).
+> - Wrong auto-route rate is high for both (held-out 0.300 vs 0.650 at 0.533 coverage). Most JEV_ONLY wrong
+>   auto-routes are multi-intent, contradictory, vague and near-tie messages with the right formal type whose gold
+>   route is review; Choice confidence and margin do not flag them reliably.
+> - Companion Noul separates fit well (mean `taxonomy_fit` 0.94 in-taxonomy vs 0.07 to 0.11 out-of-taxonomy) and
+>   `multi_intent` separates gold multi-intent cases (0.86 to 0.91 vs about 0.10), yet no single threshold reaches the
+>   illustrative 0.10 wrong-auto-route target on the calibration split; raising `taxonomyFitMin` alone lowers
+>   complaint recall. Joint/risk-specific thresholds (FEATURE-007) or investigation (FEATURE-009) are needed.
+> - Cost: about 800 input tokens per call with seven questions, p50 latency 136 ms from this environment.
+> - Metric definitions used: wrong auto-route = `DRAFT_PROPOSAL` with wrong formal type or a gold route other than
+>   `DRAFT_PROPOSAL`; OOT success = `OUT_OF_TAXONOMY` stratum proposed as `UNCLASSIFIED`; macro averages skip classes
+>   with neither support nor predictions; undefined ratios are reported as `n/a`.
+
 ## 3. Primary quality metrics
 
 - **Macro-F1** for formal SR type and separately for intent/domain; include per-class confusion matrices.

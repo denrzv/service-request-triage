@@ -1,0 +1,9 @@
+{
+  "runId" : "feature-005-jev-baseline",
+  "requestedModel" : "jev-latest",
+  "recordedOn" : "2026-11-21",
+  "priceInputUsdPerMillion" : 0.042,
+  "priceOutputUsdPerMillion" : 0.0,
+  "priceSource" : "TypeSafe Models page (docs.typesafe.ai/models), retrieved 2026-11-21: jev-1.14.0 USD 0.042 per Mtok input, output tokens free",
+  "maxWrongAutoRouteRate" : 0.1
+}
