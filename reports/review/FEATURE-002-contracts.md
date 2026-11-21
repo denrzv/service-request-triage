@@ -8,6 +8,7 @@ Outcome: CONTRACT_PASS
 - Consumers: FEATURE-005/007 will consume `JevClassificationPort`; exceptions are unchecked and documented with `@throws` on the port.
 - Rollout order: merge disabled by default (`triage.jev.enabled=false`); no consumer yet.
 - Provider behaviour for 401/403/429/5xx/Retry-After is unverified against the live API; recorded in README, ADR and PRD.
+- Post-merge (2026-11-21): live `JevLiveSmokeTest` passed; the strict parser accepted a live 200 response with Choice, Noul and Score answers (model `jev-1.14.0`). Success schema is confirmed live; the error statuses above are still unverified.
 
 ## Findings
 No Blocking or Important findings.

@@ -204,6 +204,7 @@ All Maven commands use `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.j
     non-blank `JEV_API_KEY` assumption; optional `JEV_MODEL` override. One synthetic English message, one Choice, Noul and Score
     question; asserts shape only and prints model/usage/latency (never the key).
     Checks: `./mvnw -q -Dtest=JevLiveSmokeTest test` on JDK 25: 1 test, skipped (default). Live run NOT EXECUTED: no key supplied.
+    Post-merge live run (2026-11-21): JDK 25.0.5.1 against `main` at `23094d4`: `JEV_LIVE_SMOKE=true ./mvnw -B verify` passed (67 tests, 0 failures, 0 skipped; `JevLiveSmokeTest` ran instead of being skipped). Live call: HTTP 200 on attempt 1, resolved model `jev-1.14.0` for alias `jev-latest`, 439 input / 78 output tokens, 557-640 ms latency over two runs.
 
 - [x] TASK-7: Documentation
   - Goal: Document configuration, error semantics, live smoke and billing note.
