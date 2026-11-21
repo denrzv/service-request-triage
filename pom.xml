@@ -20,7 +20,7 @@
   <properties>
     <java.version>25</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <spring-ai.version>1.1.2</spring-ai.version>
+    <spring-ai.version>1.1.8</spring-ai.version>
     <spring-ai-alibaba.version>1.1.2.0</spring-ai-alibaba.version>
     <archunit.version>1.5.1</archunit.version>
     <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
