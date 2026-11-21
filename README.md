@@ -98,6 +98,8 @@ JEV_LIVE_SMOKE=true ./mvnw -B -Dtest=JevLiveSmokeTest test
 
 By default (`./mvnw -B verify`) the test is skipped and no key is needed.
 
+Live smoke result (2026-11-21, post-merge): passed against the real API on `main` at `23094d4` with JDK 25.0.5.1. `JEV_LIVE_SMOKE=true ./mvnw -B verify` passed (67 tests, 0 failures, 0 skipped; `JevLiveSmokeTest` ran instead of being skipped). Live call: HTTP 200 on attempt 1, resolved model `jev-1.14.0` for alias `jev-latest`, 439 input / 78 output tokens, 557-640 ms latency over two runs. The strict parser accepted the live response, so the documented 200 success schema is confirmed. The 401/403/429/5xx handling is still unconfirmed against the live API.
+
 ### Compatibility findings (verified 2026-11-21)
 
 | Item | Result |
