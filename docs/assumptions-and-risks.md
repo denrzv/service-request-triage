@@ -12,7 +12,7 @@
 | A-06 | DeepSeek may be used for only ambiguous cases | Gate must be deterministic and default to safe fallback |
 | A-07 | Threshold values are not known before calibration | Store in versioned policies, tune on labeled synthetic data |
 | A-08 | Mock Task Management has no external side effects | Safe synthetic draft/task creation with idempotency keys |
-| A-09 | In-memory graph does not survive JVM restarts | Durable Human Review added after Graph baseline |
+| A-09 | In-memory graph does not survive JVM restarts (FEATURE-006: in-memory checkpoints are released per run; a restart loses any run in progress) | Durable Human Review added after Graph baseline (FEATURE-011) |
 | A-10 | Graph checkpointing may not guarantee exactly-once effects | Idempotent mocks and restart/replay integration tests |
 | A-11 | No real SR, Case or Task state machine is owned by this PoC | Clear boundaries between execution graph and business domain |
 | A-12 | Full provider billing available separately from ChatGPT/Dify | Live calls opt-in; token/cost metrics recorded |

@@ -2,7 +2,7 @@
 
 **A graph-based, confidence-aware AI proof of concept for classifying English-language customer requests and proposing Service Request / Task routing.**
 
-> Status: bootstrap skeleton (FEATURE-001). The Maven project builds, starts and exposes health endpoints; there is **no** classifier, triage graph, or business integration yet. All datasets and case-management rules are **synthetic**.
+> Status: deterministic decision graph (FEATURE-001..006). The Maven project builds, starts keylessly and exposes health endpoints; a typed Jev adapter, versioned taxonomy/policy, a goldset baseline and an offline-tested conditional triage graph exist, but no REST API, LLM investigator or business integration yet. All datasets and case-management rules are **synthetic**.
 
 ## Why this project exists
 
@@ -165,6 +165,33 @@ Result of the committed run (2026-11-21, `jev-latest` resolved to `jev-1.14.0`, 
 | JEV_ONLY | held-out test | 0.872 | 0.786 | 0.533 | 0.300 | 1.000 |
 
 Jev clearly beats the keyword rules on held-out data (the rules overfit the development split: 0.795 there). Neither baseline is safe to auto-route as is: most wrong auto-routes are multi-intent, contradictory, vague and near-tie messages whose formal type is right but which should go to review, and no single threshold reaches the illustrative 0.10 wrong-auto-route target on the calibration split. Mean input is about 800 tokens per call (about USD 0.03 per 1,000 requests at the published price); see the report for limitations.
+
+### Triage graph (FEATURE-006)
+
+First runtime orchestration: a conditional Spring AI Alibaba `StateGraph` (`graph.TriageGraph`) that runs one request through validation, definition loading, one Jev call, a confidence gate and the pure Policy Engine, and returns a typed `TriageGraphState` with status, decision and trace. Decisions: `docs/adr/FEATURE-006-stategraph-foundation.md`. It is a plain Java object built from ports (`new TriageGraph(jevPort, taxonomyPort, policyPort)`); Spring/REST wiring is FEATURE-012, so start-up stays keyless.
+
+| Node | Route labels -> target |
+|---|---|
+| `ValidateInput` | `valid` -> LoadTaxonomy; `invalid` -> BuildTrace |
+| `LoadTaxonomy` | `loaded` -> JevClassify; `failed` -> BuildTrace |
+| `JevClassify` | `classified` / `error` -> ConfidenceGate |
+| `ConfidenceGate` | `clear` / `ambiguous` / `abstain` / `error` -> FinalPolicyGate (v1; FEATURE-009 remaps `ambiguous`) |
+| `FinalPolicyGate` | `decided` -> BuildTrace |
+| `BuildTrace` | `finished` / `failed` -> END |
+
+Every node can also select `failed` (unexpected exception, `NODE_FAILED`) -> BuildTrace. Nodes select the label and append one `DecisionTraceEvent(sequence, node, routeLabel, nextNode)`; conditional edges only read it, from one route table (`TriageRoutes`).
+
+- **Decision authority:** `ConfidenceGate` labels the path from a preliminary pure-engine decision; only `FinalPolicyGate` writes `routingDecision` (`modelUnavailable` on `error`, otherwise `decide` with the investigation budget treated as used up because no investigator is wired yet). Jev failures never default a confidence.
+- **Statuses:** `HUMAN_REVIEW` -> `AWAITING_HUMAN`, `ABSTAIN` -> `COMPLETED`, `DRAFT_PROPOSAL` -> `CLASSIFIED` (nothing is created), any failure -> `FAILED` (`INPUT_REJECTED`, `DEFINITIONS_UNAVAILABLE`, `NODE_FAILED`, `INVARIANT_VIOLATED`, `GRAPH_RUNTIME_ERROR`), stopped before `BuildTrace` -> `PARTIAL` (`ITERATION_LIMIT_REACHED`, `recursionLimit` default 12). These are execution statuses; the graph never touches a Service Request.
+- **Input bounds (PoC):** `triageId` / `syntheticCustomerId` match `[A-Za-z0-9._-]{1,64}`; message 1..4,000 code points after trimming, no control characters except tab/CR/LF.
+- **State:** one `OverAllState` key holding the strict JSON form `triage-graph-state-v1` (`TriageGraphStateCodec`). Customer text is excluded from `toString`, trace and failure details.
+- **Not durable:** state lives in memory only while `run` executes; the framework's in-memory checkpoints are released at the end of each run, and a JVM restart loses any run in progress. Durable checkpoints and pause/resume are FEATURE-011.
+- **Known limitation:** in SAA 1.1.2.0 a JVM `Error` thrown inside a node is not propagated and can block `run`; node guards catch only `RuntimeException`. Callers needing a hard deadline must bound the call (FEATURE-012).
+
+```bash
+# Offline end-to-end graph tests (fake Jev, shipped taxonomy/policy v1, no credentials)
+./mvnw -q -Dtest='TriageGraphTest,DecisionNodesTest,IntakeNodesTest,TriageGraphStateCodecTest' test
+```
 
 ### Compatibility findings (verified 2026-11-21)
 
