@@ -2,7 +2,7 @@
 
 **A graph-based, confidence-aware AI proof of concept for classifying English-language customer requests and proposing Service Request / Task routing.**
 
-> Status: architecture + execution backlog. This repository does **not** yet contain a working classifier, graph runtime, or business integration. All datasets and case-management rules are **synthetic**.
+> Status: bootstrap skeleton (FEATURE-001). The Maven project builds, starts and exposes health endpoints; there is **no** classifier, triage graph, or business integration yet. All datasets and case-management rules are **synthetic**.
 
 ## Why this project exists
 
@@ -50,6 +50,38 @@ flowchart TD
 ```
 
 **Important:** a `Draft SR` is an **intent/proposal**. The model does not independently execute transfers, issue refunds, or register legally significant complaints. No irreversible action without explicit authorization.
+
+## Build and run (FEATURE-001 skeleton)
+
+Prerequisites: JDK 25 (for example `brew install openjdk@25`, then `export JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home`). Maven is provided by the wrapper; no cloud API keys are needed.
+
+```bash
+./mvnw -B verify                 # compile, enforcer rules, unit + context tests
+./mvnw spring-boot:run           # start on http://localhost:8080
+curl localhost:8080/actuator/health
+curl localhost:8080/actuator/health/liveness
+curl localhost:8080/actuator/health/readiness
+./mvnw dependency:tree           # dependency matrix (a saved copy: docs/research/FEATURE-001-dependency-tree.txt)
+```
+
+Configuration is environment-only for secrets: copy `.env.example` to an untracked `.env` or export `JEV_API_KEY` / `DEEPSEEK_API_KEY`. Provider adapters are disabled by default (`triage.jev.enabled=false`, `triage.deepseek.enabled=false`) and live calls are opt-in in later tickets. Logs use Spring Boot structured logging (logstash JSON), which emits SLF4J MDC entries as top-level JSON fields (verified with a probe: `"triageId":"..."` appears next to `message`). `triageId` and `graphRunId` are the reserved correlation MDC keys; nothing populates them yet, later tickets will. Only `health` and `info` actuator endpoints are exposed.
+
+Package layout under `io.github.denrzv.triage`: `api`, `domain.model`, `domain.port`, `application`, `graph`, `infrastructure.*`; boundaries are enforced by `ArchitectureBoundaryTest`.
+
+### Compatibility findings (verified 2026-11-21)
+
+| Item | Result |
+|---|---|
+| Spring Boot | 3.5.16 (latest 3.5.x on Maven Central); Java 25 build and tests pass |
+| Spring AI | 1.1.2 via `spring-ai-bom` |
+| Spring AI Alibaba | `spring-ai-alibaba-bom` 1.1.2.0 |
+| Graph core artifact | `com.alibaba.cloud.ai:spring-ai-alibaba-graph-core:1.1.2.0` |
+| DeepSeek adapter | `org.springframework.ai:spring-ai-deepseek:1.1.2`, transitive via graph-core; no starter added, provider inactive and the app starts without keys |
+| Graph API verified | `StateGraph(KeyStrategyFactory)`, `addNode(String, AsyncNodeAction)`, `addEdge`, `compile()`, `CompiledGraph.invoke(Map)` returning `Optional<OverAllState>` (see `GraphDependencySmokeTest`) |
+| Dependency drift | graph-core declares Jackson 2.19.4 and reactor-core 3.7.13, but Boot 3.5.16 resolves Jackson 2.21.4 and reactor-core 3.7.19; tests pass with the Boot-managed versions |
+| Test tooling | Mockito 5.17.0 / ByteBuddy 1.17.8 / ArchUnit 1.5.1 work on Java 25 |
+| Not executed | The GitHub Actions workflow has not run yet (needs a pushed branch/PR); live Jev/DeepSeek calls are not part of this ticket |
+| Follow-up | SAA 1.1.2.1 to 1.1.2.4-security-fix exist and keep Spring AI 1.1.2; evaluate moving off 1.1.2.0 in a separate ticket |
 
 ## Documentation map
 

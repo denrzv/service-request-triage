@@ -1,0 +1,238 @@
+# FEATURE-001: Tasklist
+Status: TASKLIST_READY
+
+References:
+- PRD: `docs/prd/FEATURE-001.prd.md`
+- Research: `docs/research/FEATURE-001.md`
+- Plan: `docs/plan/FEATURE-001.md`
+
+## Tasks
+- [x] TASK-1: Maven build, wrapper and toolchain verification
+  - Goal: Create a pinned Boot 3.5.16 / Spring AI 1.1.2 / SAA 1.1.2.0 `pom.xml`, Maven Wrapper and Enforcer rules; make the toolchain (JDK 25, Maven) available or record that it is not.
+  - Size: M
+  - Risk: high (Java 25 plugin and transitive compatibility; may need user approval to install JDK 25/Maven via Homebrew)
+  - Evidence: docs/research/FEATURE-001.md (version matrix)
+  - Requirements:
+    - PRD: AC1, AC2, AC7
+    - Plan: `Overview`, ADR `FEATURE-001-version-baseline`
+  - Target files:
+    - `pom.xml`
+    - `mvnw`, `mvnw.cmd`, `.mvn/wrapper/maven-wrapper.properties`
+  - Reference files: Not applicable
+  - Test files: Not applicable
+  - Expected changes:
+    - `pom.xml`: parent `spring-boot-starter-parent` 3.5.16, `java.version`/release 25, BOM imports (Spring AI 1.1.2, SAA 1.1.2.0), dependencies (web, actuator, graph-core, test starter, ArchUnit), pinned plugins, Enforcer (banned Boot 4 / Spring AI 2.x, require Java 25)
+    - Wrapper files generated
+  - Acceptance:
+    - AC1: `./mvnw -q dependency:tree` succeeds and its output is saved for the README findings.
+    - AC2: `./mvnw -q validate` succeeds on Java 25; if JDK 25 or Maven cannot be installed, this is reported as not executed and the pom is checked with the available JDK where possible.
+  - Validation:
+    - Fast: `./mvnw -q -DskipTests validate`
+    - Broader (only if needed): `./mvnw dependency:tree`
+  - Dependencies: none
+  - Out of scope: any production class, CI
+  - Notes: Do not use Spring AI model starters (ADR keyless startup). Ask the user before installing system packages.
+
+- [x] TASK-2: Application entry point and package skeleton
+  - Goal: Add `TriageApplication` and the package layout with `package-info.java` documenting each boundary.
+  - Size: S
+  - Risk: standard
+  - Evidence: docs/architecture.md section 11
+  - Requirements:
+    - PRD: AC3
+    - Plan: `Architecture / Flow`
+  - Target files:
+    - `src/main/java/io/github/denrzv/triage/TriageApplication.java`
+    - `src/main/java/io/github/denrzv/triage/{api,domain/model,domain/port,application,graph}/package-info.java`
+    - `src/main/java/io/github/denrzv/triage/infrastructure/{typesafe,deepseek,taxonomy,taskmanagement,persistence,observability}/package-info.java`
+  - Reference files: Not applicable
+  - Test files: covered by TASK-5
+  - Expected changes:
+    - `TriageApplication`: `@SpringBootApplication` main class
+    - Each `package-info.java`: one-sentence responsibility and allowed dependencies
+  - Acceptance:
+    - AC3: all packages from the plan exist and compile.
+  - Validation:
+    - Fast: `./mvnw -q -DskipTests compile`
+  - Dependencies: TASK-1
+  - Out of scope: any business class, port or adapter
+  - Notes: Constants rather than duplicated string literals; keep cognitive complexity low.
+
+- [x] TASK-3: Configuration, logging, actuator and secret hygiene
+  - Goal: Env-only secrets, provider flags default off, minimal actuator exposure, structured logging, `.env.example`, `.gitignore` review.
+  - Size: S
+  - Risk: standard
+  - Evidence: ADR `FEATURE-001-keyless-startup-and-config`
+  - Requirements:
+    - PRD: AC4, AC5
+    - Plan: `Security & Privacy`, `Observability`
+  - Target files:
+    - `src/main/resources/application.yml`
+    - `.env.example`
+    - `.gitignore`
+  - Reference files: Not applicable
+  - Test files: covered by TASK-4
+  - Expected changes:
+    - `application.yml`: `management.endpoints.web.exposure.include=health,info`, probes enabled, health details never, `logging.structured.format.console=logstash`, `triage.jev.*` and `triage.deepseek.*` with `enabled=false` and `${JEV_API_KEY:}` / `${DEEPSEEK_API_KEY:}`
+    - `.env.example`: placeholder variable names only
+    - `.gitignore`: confirm `.env` ignored and `.env.example` kept; add anything missing
+  - Acceptance:
+    - AC5: no real secret anywhere; `.env.example` placeholders only; `.env` ignored.
+  - Validation:
+    - Fast: `./mvnw -q -DskipTests compile` and `git check-ignore .env`
+  - Dependencies: TASK-2
+  - Out of scope: provider adapters, Spring AI model properties
+  - Notes: Add the keyless safeguard (autoconfigure exclusion) only if TASK-4 shows it is required.
+
+- [x] TASK-4: Keyless context and health endpoint tests
+  - Goal: Prove the app starts with empty provider env and that health, liveness and readiness are UP without details, and no key values are logged.
+  - Size: S
+  - Risk: standard
+  - Evidence: ADR `FEATURE-001-keyless-startup-and-config`
+  - Requirements:
+    - PRD: AC4, AC5, AC8
+    - Plan: `Testing strategy`
+  - Target files:
+    - `src/test/resources/application-test.yml` (only if needed)
+  - Reference files: Not applicable
+  - Test files:
+    - `src/test/java/io/github/denrzv/triage/StartupHealthTest.java`
+  - Expected changes:
+    - `StartupHealthTest`: `@SpringBootTest` with random port or MockMvc; asserts the three health endpoints return status UP and no `details`; asserts captured output does not contain a sentinel key value set via property
+  - Acceptance:
+    - AC4: test passes with no API keys set.
+    - AC8: no live provider call occurs in the test.
+  - Validation:
+    - Fast: `./mvnw -q -Dtest=StartupHealthTest test`
+  - Dependencies: TASK-3
+  - Out of scope: authentication, other endpoints
+  - Notes: If the transitive DeepSeek autoconfiguration fails keyless startup, fix via exclusion in `application.yml`/`TriageApplication` and note it in the README.
+
+- [x] TASK-5: Architecture dependency-direction test
+  - Goal: Enforce package boundaries with ArchUnit.
+  - Size: S
+  - Risk: standard (ArchUnit and Java 25 class files)
+  - Evidence: docs/architecture.md section 11
+  - Requirements:
+    - PRD: AC3
+    - Plan: `Architecture / Flow`
+  - Target files: Not applicable
+  - Reference files: Not applicable
+  - Test files:
+    - `src/test/java/io/github/denrzv/triage/ArchitectureBoundaryTest.java`
+  - Expected changes:
+    - `ArchitectureBoundaryTest`: rules that domain depends on no other project package, api does not depend on infrastructure or graph, application does not depend on infrastructure, graph does not depend on infrastructure or api; `allowEmptyShould(true)` for empty skeleton packages
+  - Acceptance:
+    - AC3: rules pass now and would fail on a forbidden dependency (verified by a temporary violation check noted in completion notes).
+  - Validation:
+    - Fast: `./mvnw -q -Dtest=ArchitectureBoundaryTest test`
+  - Dependencies: TASK-2
+  - Out of scope: other rules
+  - Notes: Use constants for package name strings.
+
+- [x] TASK-6: StateGraph dependency smoke test
+  - Goal: Show the pinned Graph API compiles and runs a trivial graph (test-only).
+  - Size: S
+  - Risk: medium (API verified by javap only so far)
+  - Evidence: docs/research/FEATURE-001.md (Graph API at 1.1.2.0)
+  - Requirements:
+    - PRD: AC7
+    - Plan: `Architecture / Flow`
+  - Target files: Not applicable
+  - Reference files: Not applicable
+  - Test files:
+    - `src/test/java/io/github/denrzv/triage/GraphDependencySmokeTest.java`
+  - Expected changes:
+    - `GraphDependencySmokeTest`: builds `StateGraph` with a `KeyStrategyFactory`, one node and START/END edges, compiles and invokes once; asserts the output key; no network or model
+  - Acceptance:
+    - AC7: test passes offline; findings (exact signatures used) recorded for README.
+  - Validation:
+    - Fast: `./mvnw -q -Dtest=GraphDependencySmokeTest test`
+  - Dependencies: TASK-1
+  - Out of scope: triage graph design (FEATURE-006)
+  - Notes: Verify signatures with javap or official docs; do not guess.
+
+- [x] TASK-7: GitHub Actions CI
+  - Goal: CI that builds and runs unit tests on Java 25 without credentials.
+  - Size: S
+  - Risk: standard
+  - Evidence: docs/implementation-plan.md (DoD: CI needs no cloud credentials)
+  - Requirements:
+    - PRD: AC2, AC8
+    - Plan: `Rollout plan`
+  - Target files:
+    - `.github/workflows/ci.yml`
+  - Reference files: Not applicable
+  - Test files: Not applicable
+  - Expected changes:
+    - `ci.yml`: on push and pull_request; `actions/setup-java` with Temurin 25 and Maven cache; `./mvnw -B verify`; no secrets; minimal permissions (`contents: read`)
+  - Acceptance:
+    - AC2: workflow file is valid YAML and uses only the wrapper command; actual CI run is reported as not executed until a PR exists.
+  - Validation:
+    - Fast: `python3 -c "import yaml,sys;yaml.safe_load(open('.github/workflows/ci.yml'))"` (if PyYAML is available)
+  - Dependencies: TASK-1
+  - Out of scope: deployment, release workflows
+  - Notes: Pin action versions to released majors.
+
+- [x] TASK-8: README, ADR-005 outcome and compatibility findings
+  - Goal: Document exact build/run commands, env vars, health URLs, verified versions and what was or was not executed; update ADR-005.
+  - Size: M
+  - Risk: standard
+  - Evidence: results of TASK-1, 4, 5, 6
+  - Requirements:
+    - PRD: AC1, AC2, AC6
+    - Plan: `Quality gate impact` (docs required)
+  - Target files:
+    - `README.md`
+    - `docs/adr/README.md`
+  - Reference files: Not applicable
+  - Test files: Not applicable
+  - Expected changes:
+    - `README.md`: prerequisites (JDK 25, wrapper), build/test/run commands, health curl examples, environment variables, compatibility findings (Boot 3.5.16, Spring AI 1.1.2, SAA 1.1.2.0, graph-core artifact, DeepSeek adapter version, issues found), follow-up note on later SAA 1.1.2.x
+    - `docs/adr/README.md`: ADR-005 status updated to verified with link to the ticket ADR
+  - Acceptance:
+    - AC6: every command in the README was executed, or is explicitly marked not executed.
+  - Validation:
+    - Fast: `python3 scripts/validate-workflow.py --ticket FEATURE-001`
+  - Dependencies: TASK-4, TASK-5, TASK-6, TASK-7
+  - Out of scope: new architecture docs
+  - Notes: Truthfully report any test not run.
+
+## Diagram tasks
+- None. Plan has `Render diagrams required: no`.
+
+## Review / QA fixes
+- [x] TASK-FIX-1: Document reserved MDC correlation keys in the logging baseline
+  - Source: DOC-001
+  - Goal: Satisfy PRD AC5 / plan Observability by documenting that the structured JSON log includes MDC entries and that `triageId` and `graphRunId` are reserved correlation keys populated by later tickets.
+  - Size: S
+  - Risk: standard
+  - Requirements:
+    - Finding: DOC-001 (`reports/docs/FEATURE-001.md`)
+    - PRD/Plan: AC5; Plan `Observability`
+  - Target files:
+    - `README.md`
+    - `docs/adr/FEATURE-001-keyless-startup-and-config.md`
+  - Reference files: Not applicable
+  - Test files: Not applicable
+  - Expected changes:
+    - `README.md`: in the logging paragraph, state that logstash JSON includes MDC entries and that `triageId` and `graphRunId` are reserved MDC keys (not populated until later tickets); verify with a short run that an MDC entry appears in the JSON output or word the claim to match the verified behavior
+    - ADR `FEATURE-001-keyless-startup-and-config`: one sentence under Decision noting the reserved keys
+  - Acceptance:
+    - AC5: README states the reserved MDC keys and where they appear in the JSON log output; the statement matches observed behavior.
+  - Validation:
+    - Fast: `grep -n triageId README.md docs/adr/FEATURE-001-keyless-startup-and-config.md`
+    - Broader (only if needed): `python3 scripts/aidd_verification.py --ticket FEATURE-001 run`
+  - Dependencies: TASK-8
+  - Out of scope: populating MDC values, code changes
+  - Notes: Docs-only; rerun deterministic verification if the fingerprint requires it.
+
+## Completion notes
+- Toolchain: installed `openjdk@25` and `maven` via Homebrew (user approved); builds run with JDK 25.0.5 through the Maven Wrapper (Maven 3.9.11).
+- TASK-1: `./mvnw -q validate` and `./mvnw dependency:tree` succeeded; tree saved to `docs/research/FEATURE-001-dependency-tree.txt`.
+- TASK-4/5/6: `./mvnw -B verify` ran 8 tests, 0 failures (StartupHealthTest 3, ArchitectureBoundaryTest 4, GraphDependencySmokeTest 1). Transitive DeepSeek autoconfiguration did not break keyless startup, so no exclusion was added.
+- TASK-5: a temporary forbidden dependency (domain to api) made `domainIsIndependent` fail as intended; the temporary files were removed.
+- Manual: `./mvnw spring-boot:run` then curl on `/actuator/health`, `/liveness`, `/readiness` returned UP without details.
+- TASK-7: `.github/workflows/ci.yml` written but NOT executed (no pushed branch/PR); PyYAML was unavailable so YAML syntax was not machine-validated.
+- Deviation: work is on `feature/FEATURE-001-project-bootstrap` in the main checkout, not a separate worktree, because AIDD write hooks block paths outside the session project root.
+- TASK-FIX-1: README and keyless-startup ADR document the reserved `triageId`/`graphRunId` MDC keys; behavior verified with a temporary probe test (removed). Docs-only change.

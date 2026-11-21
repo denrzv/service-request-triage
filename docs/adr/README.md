@@ -47,7 +47,7 @@
 **Trade-offs:** Lower harmful auto-routing at cost of more escalations and human work. Thresholds are not fixed universal truths; tune on held-out English data.
 
 ## ADR-005 — Use Spring AI Alibaba Graph with a verified Spring generation
-**Status:** Provisional until Maven spike passes
+**Status:** Accepted — verified by the FEATURE-001 Maven spike (Boot 3.5.16, Spring AI 1.1.2, SAA 1.1.2.0; see `FEATURE-001-version-baseline.md` and README compatibility findings). Graph persistence APIs still to be validated in FEATURE-011.
 
 **Context:** New Java 25 project should experiment with ready-made state graph rather than custom orchestration.
 
