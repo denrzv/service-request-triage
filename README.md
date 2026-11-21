@@ -100,6 +100,30 @@ By default (`./mvnw -B verify`) the test is skipped and no key is needed.
 
 Live smoke result (2026-11-21, post-merge): passed against the real API on `main` at `23094d4` with JDK 25.0.5.1. `JEV_LIVE_SMOKE=true ./mvnw -B verify` passed (67 tests, 0 failures, 0 skipped; `JevLiveSmokeTest` ran instead of being skipped). Live call: HTTP 200 on attempt 1, resolved model `jev-1.14.0` for alias `jev-latest`, 439 input / 78 output tokens, 557-640 ms latency over two runs. The strict parser accepted the live response, so the documented 200 success schema is confirmed. The 401/403/429/5xx handling is still unconfirmed against the live API.
 
+### Taxonomy and policy (FEATURE-003)
+
+The taxonomy and the classification/routing policy are **synthetic, illustrative and versioned**. They are not bank policy and carry no legal, regulatory or SLA meaning. Both live as JSON files: `src/main/resources/taxonomy/v1.json` (definitions of `PrimaryIntent`, `ProblemDomain`, `RequestedOutcome`, `ServiceRequestType` and reason codes) and `src/main/resources/policy/v1.json` (ordered rule table, thresholds, approval types).
+
+`ClassificationPolicyEngine` (`application.policy`) is a pure Java function: `decide(SemanticAssessment, Taxonomy, ClassificationPolicy, investigationAttempts)` returns a `RoutingDecision` with a `ClassificationProposal`. It never calls a model and does no I/O. It evaluates in this order:
+
+1. Taxonomy fit below `taxonomyFitMin`: `UNCLASSIFIED`, policy's `lowTaxonomyFitAction` (`ABSTAIN` or `HUMAN_REVIEW`).
+2. No matching rule (none-fit): `UNCLASSIFIED`, policy's `noRuleMatchedAction`.
+3. Multi-intent above `multiIntentMax`, or Choice confidence below `choiceConfidenceMin` / top-two margin below `choiceMarginMin` on a dimension the matched rule depends on: `LLM_INVESTIGATION` while `investigationAttempts < maxInvestigations`, otherwise `HUMAN_REVIEW`.
+4. Proposed type listed in `humanApprovalTypes` (v1: `CLAIM`): `HUMAN_REVIEW`.
+5. Otherwise `DRAFT_PROPOSAL`.
+
+`modelUnavailable(...)` returns `HUMAN_REVIEW` with `UNCLASSIFIED` / `MODEL_UNAVAILABLE` when no valid assessment exists. The first matching rule sets the type and reason code; the SR types of the other matching rules become `alternatives`, and `ruleIds` lists every match in table order.
+
+**v1 is uncalibrated.** Its thresholds are no-op values (`0.0` minima, `multiIntentMax` `1.0`, `calibrated: false`), so only the categorical rules and the `CLAIM` approval rule act. Every decision of an uncalibrated policy carries `THRESHOLDS_UNCALIBRATED`. `signalMin` (`0.5`) only turns a Noul probability into a rule condition. Calibrated values come from the goldset in later tickets (FEATURE-004/005/007).
+
+| Property (`triage.definitions.*`) | Default | Notes |
+|---|---|---|
+| `taxonomy-locations` | `classpath:taxonomy/v1.json` | Comma-separated Spring resource locations (`classpath:` or `file:`) |
+| `policy-locations` | `classpath:policy/v1.json` | Same syntax; each policy must target a loaded taxonomy version |
+| `active-policy-version` | `v1` | Policy returned by `ClassificationPolicyPort.active()` |
+
+**Publishing a new policy version** needs no code change: add a file with a new `version`, list it in `policy-locations`, and set `active-policy-version`. Existing versions stay loadable by `ClassificationPolicyPort.get(version)`; an unknown version raises `DefinitionNotFoundException`. Definitions are validated at startup, and the application does not start if a file has an unknown, missing or duplicate property, an unknown enum name, a threshold outside [0, 1], an unknown reason code or one of another SR type, a duplicate version or rule ID, a missing `synthetic: true` marker, or an active version that is not loaded. The error names the file location.
+
 ### Compatibility findings (verified 2026-11-21)
 
 | Item | Result |

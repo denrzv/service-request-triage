@@ -1,0 +1,209 @@
+{
+  "version": "v2-test",
+  "taxonomyVersion": "v1",
+  "synthetic": true,
+  "calibrated": true,
+  "description": "Test-only synthetic policy: proves a new version changes decisions without source changes. Values are not calibrated.",
+  "thresholds": {
+    "taxonomyFitMin": 0.5,
+    "choiceConfidenceMin": 0.0,
+    "choiceMarginMin": 0.0,
+    "multiIntentMax": 1.0,
+    "signalMin": 0.5
+  },
+  "lowTaxonomyFitAction": "ABSTAIN",
+  "noRuleMatchedAction": "ABSTAIN",
+  "maxInvestigations": 1,
+  "humanApprovalTypes": [],
+  "rules": [
+    {
+      "id": "R01-COMPLAINT-PAYMENTS",
+      "description": "Complaint about payments is a synthetic payment dispute.",
+      "when": {
+        "primaryIntents": [
+          "COMPLAINT"
+        ],
+        "problemDomains": [
+          "PAYMENTS"
+        ],
+        "requestedOutcomes": [],
+        "refundRequested": "ANY",
+        "technicalProblem": "ANY"
+      },
+      "then": {
+        "serviceRequestType": "CLAIM",
+        "reasonCode": "PAYMENT_DISPUTE"
+      }
+    },
+    {
+      "id": "R02-COMPLAINT-DIGITAL",
+      "description": "Complaint about a digital channel, even when it describes a malfunction.",
+      "when": {
+        "primaryIntents": [
+          "COMPLAINT"
+        ],
+        "problemDomains": [
+          "DIGITAL_CHANNELS"
+        ],
+        "requestedOutcomes": [],
+        "refundRequested": "ANY",
+        "technicalProblem": "ANY"
+      },
+      "then": {
+        "serviceRequestType": "CLAIM",
+        "reasonCode": "DIGITAL_CHANNEL_COMPLAINT"
+      }
+    },
+    {
+      "id": "R03-COMPLAINT-SUPPORT",
+      "description": "Complaint about support or staff.",
+      "when": {
+        "primaryIntents": [
+          "COMPLAINT"
+        ],
+        "problemDomains": [
+          "SUPPORT_SERVICE"
+        ],
+        "requestedOutcomes": [],
+        "refundRequested": "ANY",
+        "technicalProblem": "ANY"
+      },
+      "then": {
+        "serviceRequestType": "CLAIM",
+        "reasonCode": "SERVICE_QUALITY_COMPLAINT"
+      }
+    },
+    {
+      "id": "R04-COMPLAINT-ACCOUNTS",
+      "description": "Complaint about an account.",
+      "when": {
+        "primaryIntents": [
+          "COMPLAINT"
+        ],
+        "problemDomains": [
+          "ACCOUNTS"
+        ],
+        "requestedOutcomes": [],
+        "refundRequested": "ANY",
+        "technicalProblem": "ANY"
+      },
+      "then": {
+        "serviceRequestType": "CLAIM",
+        "reasonCode": "ACCOUNT_COMPLAINT"
+      }
+    },
+    {
+      "id": "R05-COMPLAINT-OTHER",
+      "description": "Complaint outside the listed domains is still proposed as a claim so it reaches human review.",
+      "when": {
+        "primaryIntents": [
+          "COMPLAINT"
+        ],
+        "problemDomains": [
+          "OTHER"
+        ],
+        "requestedOutcomes": [],
+        "refundRequested": "ANY",
+        "technicalProblem": "ANY"
+      },
+      "then": {
+        "serviceRequestType": "CLAIM",
+        "reasonCode": "GENERAL_COMPLAINT"
+      }
+    },
+    {
+      "id": "R06-REFUND-PAYMENTS",
+      "description": "Explicit refund request about a payment, whatever the stated intent.",
+      "when": {
+        "primaryIntents": [],
+        "problemDomains": [
+          "PAYMENTS"
+        ],
+        "requestedOutcomes": [],
+        "refundRequested": "PRESENT",
+        "technicalProblem": "ANY"
+      },
+      "then": {
+        "serviceRequestType": "CLAIM",
+        "reasonCode": "PAYMENT_DISPUTE"
+      }
+    },
+    {
+      "id": "R07-INCIDENT-TECHNICAL",
+      "description": "Incident report with a technical problem signal.",
+      "when": {
+        "primaryIntents": [
+          "INCIDENT_REPORT"
+        ],
+        "problemDomains": [],
+        "requestedOutcomes": [],
+        "refundRequested": "ANY",
+        "technicalProblem": "PRESENT"
+      },
+      "then": {
+        "serviceRequestType": "TECHNICAL_REQUEST",
+        "reasonCode": "TECHNICAL_MALFUNCTION"
+      }
+    },
+    {
+      "id": "R08-TECHNICAL-DIGITAL",
+      "description": "Technical problem signal in a digital channel; yields a technical alternative for complaints.",
+      "when": {
+        "primaryIntents": [],
+        "problemDomains": [
+          "DIGITAL_CHANNELS"
+        ],
+        "requestedOutcomes": [],
+        "refundRequested": "ANY",
+        "technicalProblem": "PRESENT"
+      },
+      "then": {
+        "serviceRequestType": "TECHNICAL_REQUEST",
+        "reasonCode": "DIGITAL_CHANNEL_MALFUNCTION"
+      }
+    },
+    {
+      "id": "R09-INQUIRY",
+      "description": "Question within a listed domain.",
+      "when": {
+        "primaryIntents": [
+          "INQUIRY"
+        ],
+        "problemDomains": [
+          "PAYMENTS",
+          "ACCOUNTS",
+          "DIGITAL_CHANNELS",
+          "SUPPORT_SERVICE"
+        ],
+        "requestedOutcomes": [],
+        "refundRequested": "ANY",
+        "technicalProblem": "ANY"
+      },
+      "then": {
+        "serviceRequestType": "INFORMATION_REQUEST",
+        "reasonCode": "GENERAL_INFORMATION"
+      }
+    },
+    {
+      "id": "R10-ACTION",
+      "description": "Service action request within payments, accounts or digital channels.",
+      "when": {
+        "primaryIntents": [
+          "ACTION_REQUEST"
+        ],
+        "problemDomains": [
+          "PAYMENTS",
+          "ACCOUNTS",
+          "DIGITAL_CHANNELS"
+        ],
+        "requestedOutcomes": [],
+        "refundRequested": "ANY",
+        "technicalProblem": "ANY"
+      },
+      "then": {
+        "serviceRequestType": "SERVICE_REQUEST",
+        "reasonCode": "SERVICE_ACTION"
+      }
+    }
+  ]
+}

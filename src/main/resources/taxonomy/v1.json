@@ -1,0 +1,47 @@
+{
+  "version": "v1",
+  "synthetic": true,
+  "description": "Illustrative synthetic Service Request taxonomy for an educational PoC. It is not a real bank catalogue and carries no legal, regulatory or SLA meaning.",
+  "primaryIntents": {
+    "COMPLAINT": "The customer expresses dissatisfaction or a formal grievance.",
+    "INQUIRY": "The customer asks for clarification or information.",
+    "ACTION_REQUEST": "The customer asks for a service action to be performed.",
+    "INCIDENT_REPORT": "The customer reports a malfunction without clearly expressing a formal complaint."
+  },
+  "problemDomains": {
+    "PAYMENTS": "Charges, transfers, payments or billing.",
+    "ACCOUNTS": "Account access, account details or account status.",
+    "DIGITAL_CHANNELS": "Mobile app, login, website or online banking malfunction.",
+    "SUPPORT_SERVICE": "Staff conduct or quality of support.",
+    "OTHER": "Anything outside the listed domains."
+  },
+  "requestedOutcomes": {
+    "REFUND": "The customer asks for money to be returned.",
+    "FIX_PROBLEM": "The customer asks for a problem to be fixed.",
+    "INVESTIGATE": "The customer asks for something to be looked into.",
+    "EXPLAIN": "The customer asks for an explanation.",
+    "PERFORM_ACTION": "The customer asks for a specific service action.",
+    "NOT_SPECIFIED": "No outcome is stated."
+  },
+  "serviceRequestTypes": {
+    "CLAIM": "Synthetic formal complaint or dispute record.",
+    "TECHNICAL_REQUEST": "Synthetic request to resolve a technical malfunction.",
+    "INFORMATION_REQUEST": "Synthetic request for information.",
+    "SERVICE_REQUEST": "Synthetic request for a service action.",
+    "UNCLASSIFIED": "Abstention: no formal type is proposed and the case needs manual triage."
+  },
+  "reasonCodes": [
+    { "code": "PAYMENT_DISPUTE", "serviceRequestType": "CLAIM", "description": "Complaint or refund request about a payment or charge." },
+    { "code": "DIGITAL_CHANNEL_COMPLAINT", "serviceRequestType": "CLAIM", "description": "Complaint about a digital channel." },
+    { "code": "SERVICE_QUALITY_COMPLAINT", "serviceRequestType": "CLAIM", "description": "Complaint about support or staff." },
+    { "code": "ACCOUNT_COMPLAINT", "serviceRequestType": "CLAIM", "description": "Complaint about an account." },
+    { "code": "GENERAL_COMPLAINT", "serviceRequestType": "CLAIM", "description": "Complaint outside the listed domains." },
+    { "code": "TECHNICAL_MALFUNCTION", "serviceRequestType": "TECHNICAL_REQUEST", "description": "Reported technical malfunction." },
+    { "code": "DIGITAL_CHANNEL_MALFUNCTION", "serviceRequestType": "TECHNICAL_REQUEST", "description": "Technical problem in a digital channel." },
+    { "code": "GENERAL_INFORMATION", "serviceRequestType": "INFORMATION_REQUEST", "description": "Question about a product, account or channel." },
+    { "code": "SERVICE_ACTION", "serviceRequestType": "SERVICE_REQUEST", "description": "Request to perform a service action." },
+    { "code": "NONE_FIT", "serviceRequestType": "UNCLASSIFIED", "description": "No policy rule fits the assessment." },
+    { "code": "LOW_TAXONOMY_FIT", "serviceRequestType": "UNCLASSIFIED", "description": "The taxonomy does not fit the request well enough." },
+    { "code": "MODEL_UNAVAILABLE", "serviceRequestType": "UNCLASSIFIED", "description": "No valid semantic assessment is available." }
+  ]
+}

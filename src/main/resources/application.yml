@@ -19,9 +19,16 @@ logging:
     format:
       console: logstash
 
-# Provider adapters arrive in later tickets. They stay disabled by default and read
-# secrets from environment variables only (see .env.example).
+# Versioned synthetic taxonomy/policy definitions (FEATURE-003). Locations accept classpath: or file:
+# resources; publishing a new policy means adding a file and changing these values, not code.
 triage:
+  definitions:
+    taxonomy-locations: classpath:taxonomy/v1.json
+    policy-locations: classpath:policy/v1.json
+    active-policy-version: v1
+
+  # Provider adapters stay disabled by default and read secrets from environment
+  # variables only (see .env.example).
   jev:
     enabled: false
     api-key: ${JEV_API_KEY:}
