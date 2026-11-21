@@ -175,6 +175,26 @@ Do not assume all questions have the same response type. An absent or malformed 
 
 **Implemented in FEATURE-002 (verified against the TypeSafe OpenAPI 0.2.0 schema):** the lower-level `JevClassificationPort.classify(JevClassificationRequest) -> JevClassificationResult` sits beneath the taxonomy-aware `ClassificationModelPort` above, which FEATURE-003/007 layer on top. The Score `criteria` is an **array** (1 to 10 levels), Choice `criteria` is an object (1 to 255 entries), and Noul has no `confidence`. Score probabilities and `legend` are keyed `"0"`, `"1"`, and so on. Only 200, 400 and 422 responses are documented; other statuses are handled by class (see README, "Jev adapter"). Failures surface as `JevClientException`, `JevUnavailableException` or `JevProtocolException`, which a later graph node maps to `HUMAN_REVIEW` / `MODEL_UNAVAILABLE`.
 
+### 3a. Triage question set `triage-jev-v1` (FEATURE-005)
+
+`application.assessment.TriageQuestionSets.v1()` is the versioned runtime question set sent in **one** Jev call with
+state `{customerMessage, channel}`:
+
+| Question | Type | Maps to |
+|---|---|---|
+| `primary_intent` | Choice; criteria keys `complaint`, `inquiry`, `action_request`, `incident_report` | `SemanticAssessment.primaryIntent` |
+| `problem_domain` | Choice; `payments`, `accounts`, `digital_channels`, `support_service`, `other` | `problemDomain` |
+| `requested_outcome` | Choice; `refund`, `fix_problem`, `investigate`, `explain`, `perform_action`, `not_specified` | `requestedOutcome` |
+| `refund_requested` | Noul | `refundRequestedNoul` |
+| `technical_problem` | Noul | `technicalProblemNoul` |
+| `multi_intent` | Noul | `multiIntentNoul` |
+| `taxonomy_fit` | Noul (Companion Noul: does any offered category fit?) | `taxonomyFitNoul` |
+
+Choice criteria keys are the lower-case taxonomy enum names. `JevAssessmentMapper.toAssessment(result)` is strict: a
+different question-set version, a missing or mistyped answer, or choice probabilities whose keys are not exactly the
+enum constants raise `JevProtocolException` (safe `MODEL_UNAVAILABLE` path). `modelUsed` is the resolved model and
+`questionSetVersion` is echoed. Any change to question names, instructions or criteria requires a new version.
+
 ## 4. Policy gate (examples only)
 
 ```text

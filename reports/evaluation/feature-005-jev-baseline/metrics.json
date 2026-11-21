@@ -1,0 +1,1114 @@
+{
+  "metadata" : {
+    "runId" : "feature-005-jev-baseline",
+    "datasetId" : "english-goldset",
+    "datasetVersion" : "v1",
+    "taxonomyVersion" : "v1",
+    "devSha256" : "60c573d4924d83e5436ba0f11367329f0e9160141aaab5d5ea27afb5699b1c29",
+    "devRecords" : 165,
+    "testSha256" : "bf9aaeee7282ebc69f6272054ecc9e308fb9070f40fc38f57add2b68e4228e55",
+    "testRecords" : 75,
+    "policyVersion" : "v1",
+    "policyCalibrated" : false,
+    "questionSetVersion" : "triage-jev-v1",
+    "rulesVersion" : "rules-v1",
+    "requestedModel" : "jev-latest",
+    "resolvedModels" : [ "jev-1.14.0" ],
+    "recordedOn" : "2026-11-21",
+    "priceSource" : "TypeSafe Models page (docs.typesafe.ai/models), retrieved 2026-11-21: jev-1.14.0 USD 0.042 per Mtok input, output tokens free"
+  },
+  "metrics" : {
+    "RULES_ONLY" : {
+      "DEV" : {
+        "cases" : 165,
+        "assessedCases" : 165,
+        "providerErrors" : 0,
+        "formalType" : {
+          "macroF1" : 0.795432,
+          "accuracy" : 0.8,
+          "lenientAccuracy" : 0.836364,
+          "perClass" : [ {
+            "label" : "CLAIM",
+            "support" : 52,
+            "predicted" : 43,
+            "truePositives" : 39,
+            "precision" : 0.906977,
+            "recall" : 0.75,
+            "f1" : 0.821053
+          }, {
+            "label" : "TECHNICAL_REQUEST",
+            "support" : 23,
+            "predicted" : 21,
+            "truePositives" : 17,
+            "precision" : 0.809524,
+            "recall" : 0.73913,
+            "f1" : 0.772727
+          }, {
+            "label" : "INFORMATION_REQUEST",
+            "support" : 34,
+            "predicted" : 31,
+            "truePositives" : 28,
+            "precision" : 0.903226,
+            "recall" : 0.823529,
+            "f1" : 0.861538
+          }, {
+            "label" : "SERVICE_REQUEST",
+            "support" : 31,
+            "predicted" : 42,
+            "truePositives" : 28,
+            "precision" : 0.666667,
+            "recall" : 0.903226,
+            "f1" : 0.767123
+          }, {
+            "label" : "UNCLASSIFIED",
+            "support" : 25,
+            "predicted" : 28,
+            "truePositives" : 20,
+            "precision" : 0.714286,
+            "recall" : 0.8,
+            "f1" : 0.754717
+          } ],
+          "confusion" : {
+            "CLAIM" : {
+              "CLAIM" : 39,
+              "TECHNICAL_REQUEST" : 3,
+              "INFORMATION_REQUEST" : 1,
+              "SERVICE_REQUEST" : 4,
+              "UNCLASSIFIED" : 5
+            },
+            "TECHNICAL_REQUEST" : {
+              "CLAIM" : 1,
+              "TECHNICAL_REQUEST" : 17,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 5,
+              "UNCLASSIFIED" : 0
+            },
+            "INFORMATION_REQUEST" : {
+              "CLAIM" : 1,
+              "TECHNICAL_REQUEST" : 0,
+              "INFORMATION_REQUEST" : 28,
+              "SERVICE_REQUEST" : 2,
+              "UNCLASSIFIED" : 3
+            },
+            "SERVICE_REQUEST" : {
+              "CLAIM" : 1,
+              "TECHNICAL_REQUEST" : 0,
+              "INFORMATION_REQUEST" : 2,
+              "SERVICE_REQUEST" : 28,
+              "UNCLASSIFIED" : 0
+            },
+            "UNCLASSIFIED" : {
+              "CLAIM" : 1,
+              "TECHNICAL_REQUEST" : 1,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 3,
+              "UNCLASSIFIED" : 20
+            }
+          }
+        },
+        "semantic" : {
+          "intentMacroF1" : 0.799603,
+          "intentAccuracy" : 0.8,
+          "domainMacroF1" : 0.89342,
+          "domainAccuracy" : 0.921212,
+          "outcomeAccuracy" : 0.557576
+        },
+        "complaint" : {
+          "goldClaims" : 52,
+          "detected" : 39,
+          "recall" : 0.75,
+          "falseNegativeRate" : 0.25,
+          "autoRouted" : 8
+        },
+        "routing" : {
+          "predictedRoutes" : {
+            "DRAFT_PROPOSAL" : 94,
+            "LLM_INVESTIGATION" : 0,
+            "HUMAN_REVIEW" : 43,
+            "ABSTAIN" : 28
+          },
+          "routeAccuracy" : 0.709091,
+          "lenientRouteAccuracy" : 0.757576,
+          "abstainRate" : 0.169697,
+          "humanReviewRate" : 0.260606,
+          "autoRouteCoverage" : 0.569697,
+          "autoRouted" : 94,
+          "wrongAutoRoutes" : 38,
+          "wrongAutoRoutesByStratum" : {
+            "SIMPLE_COMPLAINT" : 1,
+            "SIMPLE_INQUIRY" : 1,
+            "SIMPLE_SERVICE_ACTION" : 0,
+            "SIMPLE_INCIDENT" : 3,
+            "DUPLICATE_CHARGE" : 3,
+            "DISSATISFACTION_WITH_TECHNICAL" : 1,
+            "MULTI_INTENT" : 10,
+            "VAGUE" : 4,
+            "CONTRADICTORY" : 8,
+            "OUT_OF_TAXONOMY" : 0,
+            "NEAR_TIE" : 6,
+            "NO_COMPLAINT_CONTROL" : 1
+          },
+          "wrongAutoRouteRate" : 0.404255,
+          "selectiveAccuracy" : 0.595745,
+          "goldAbstain" : 14,
+          "abstainPrecision" : 0.5,
+          "abstainRecall" : 1.0
+        },
+        "outOfTaxonomy" : {
+          "goldCases" : 14,
+          "rejected" : 14,
+          "successRate" : 1.0,
+          "autoRouted" : 0,
+          "safeRate" : 1.0
+        },
+        "signals" : {
+          "choices" : [ {
+            "dimension" : "primary_intent",
+            "meanTopProbability" : 1.0,
+            "meanConfidence" : 1.0,
+            "meanMargin" : 1.0,
+            "accuracy" : 0.8,
+            "meanConfidenceWhenCorrect" : 1.0,
+            "meanConfidenceWhenWrong" : 1.0
+          }, {
+            "dimension" : "problem_domain",
+            "meanTopProbability" : 1.0,
+            "meanConfidence" : 1.0,
+            "meanMargin" : 1.0,
+            "accuracy" : 0.921212,
+            "meanConfidenceWhenCorrect" : 1.0,
+            "meanConfidenceWhenWrong" : 1.0
+          }, {
+            "dimension" : "requested_outcome",
+            "meanTopProbability" : 1.0,
+            "meanConfidence" : 1.0,
+            "meanMargin" : 1.0,
+            "accuracy" : 0.557576,
+            "meanConfidenceWhenCorrect" : 1.0,
+            "meanConfidenceWhenWrong" : 1.0
+          } ],
+          "meanTaxonomyFitInTaxonomy" : 0.966887,
+          "meanTaxonomyFitOutOfTaxonomy" : 0.785714,
+          "meanMultiIntentWithSecondaryIntent" : 0.866667,
+          "meanMultiIntentSingleIntent" : 0.013333
+        }
+      },
+      "TEST" : {
+        "cases" : 75,
+        "assessedCases" : 75,
+        "providerErrors" : 0,
+        "formalType" : {
+          "macroF1" : 0.510749,
+          "accuracy" : 0.533333,
+          "lenientAccuracy" : 0.573333,
+          "perClass" : [ {
+            "label" : "CLAIM",
+            "support" : 28,
+            "predicted" : 16,
+            "truePositives" : 13,
+            "precision" : 0.8125,
+            "recall" : 0.464286,
+            "f1" : 0.590909
+          }, {
+            "label" : "TECHNICAL_REQUEST",
+            "support" : 11,
+            "predicted" : 3,
+            "truePositives" : 2,
+            "precision" : 0.666667,
+            "recall" : 0.181818,
+            "f1" : 0.285714
+          }, {
+            "label" : "INFORMATION_REQUEST",
+            "support" : 13,
+            "predicted" : 8,
+            "truePositives" : 6,
+            "precision" : 0.75,
+            "recall" : 0.461538,
+            "f1" : 0.571429
+          }, {
+            "label" : "SERVICE_REQUEST",
+            "support" : 12,
+            "predicted" : 29,
+            "truePositives" : 9,
+            "precision" : 0.310345,
+            "recall" : 0.75,
+            "f1" : 0.439024
+          }, {
+            "label" : "UNCLASSIFIED",
+            "support" : 11,
+            "predicted" : 19,
+            "truePositives" : 10,
+            "precision" : 0.526316,
+            "recall" : 0.909091,
+            "f1" : 0.666667
+          } ],
+          "confusion" : {
+            "CLAIM" : {
+              "CLAIM" : 13,
+              "TECHNICAL_REQUEST" : 1,
+              "INFORMATION_REQUEST" : 2,
+              "SERVICE_REQUEST" : 9,
+              "UNCLASSIFIED" : 3
+            },
+            "TECHNICAL_REQUEST" : {
+              "CLAIM" : 1,
+              "TECHNICAL_REQUEST" : 2,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 8,
+              "UNCLASSIFIED" : 0
+            },
+            "INFORMATION_REQUEST" : {
+              "CLAIM" : 0,
+              "TECHNICAL_REQUEST" : 0,
+              "INFORMATION_REQUEST" : 6,
+              "SERVICE_REQUEST" : 2,
+              "UNCLASSIFIED" : 5
+            },
+            "SERVICE_REQUEST" : {
+              "CLAIM" : 2,
+              "TECHNICAL_REQUEST" : 0,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 9,
+              "UNCLASSIFIED" : 1
+            },
+            "UNCLASSIFIED" : {
+              "CLAIM" : 0,
+              "TECHNICAL_REQUEST" : 0,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 1,
+              "UNCLASSIFIED" : 10
+            }
+          }
+        },
+        "semantic" : {
+          "intentMacroF1" : 0.458192,
+          "intentAccuracy" : 0.493333,
+          "domainMacroF1" : 0.817247,
+          "domainAccuracy" : 0.853333,
+          "outcomeAccuracy" : 0.333333
+        },
+        "complaint" : {
+          "goldClaims" : 28,
+          "detected" : 13,
+          "recall" : 0.464286,
+          "falseNegativeRate" : 0.535714,
+          "autoRouted" : 12
+        },
+        "routing" : {
+          "predictedRoutes" : {
+            "DRAFT_PROPOSAL" : 40,
+            "LLM_INVESTIGATION" : 0,
+            "HUMAN_REVIEW" : 16,
+            "ABSTAIN" : 19
+          },
+          "routeAccuracy" : 0.56,
+          "lenientRouteAccuracy" : 0.626667,
+          "abstainRate" : 0.253333,
+          "humanReviewRate" : 0.213333,
+          "autoRouteCoverage" : 0.533333,
+          "autoRouted" : 40,
+          "wrongAutoRoutes" : 26,
+          "wrongAutoRoutesByStratum" : {
+            "SIMPLE_COMPLAINT" : 2,
+            "SIMPLE_INQUIRY" : 1,
+            "SIMPLE_SERVICE_ACTION" : 0,
+            "SIMPLE_INCIDENT" : 7,
+            "DUPLICATE_CHARGE" : 2,
+            "DISSATISFACTION_WITH_TECHNICAL" : 4,
+            "MULTI_INTENT" : 3,
+            "VAGUE" : 1,
+            "CONTRADICTORY" : 4,
+            "OUT_OF_TAXONOMY" : 0,
+            "NEAR_TIE" : 2,
+            "NO_COMPLAINT_CONTROL" : 0
+          },
+          "wrongAutoRouteRate" : 0.65,
+          "selectiveAccuracy" : 0.35,
+          "goldAbstain" : 6,
+          "abstainPrecision" : 0.315789,
+          "abstainRecall" : 1.0
+        },
+        "outOfTaxonomy" : {
+          "goldCases" : 6,
+          "rejected" : 6,
+          "successRate" : 1.0,
+          "autoRouted" : 0,
+          "safeRate" : 1.0
+        },
+        "signals" : {
+          "choices" : [ {
+            "dimension" : "primary_intent",
+            "meanTopProbability" : 1.0,
+            "meanConfidence" : 1.0,
+            "meanMargin" : 1.0,
+            "accuracy" : 0.493333,
+            "meanConfidenceWhenCorrect" : 1.0,
+            "meanConfidenceWhenWrong" : 1.0
+          }, {
+            "dimension" : "problem_domain",
+            "meanTopProbability" : 1.0,
+            "meanConfidence" : 1.0,
+            "meanMargin" : 1.0,
+            "accuracy" : 0.853333,
+            "meanConfidenceWhenCorrect" : 1.0,
+            "meanConfidenceWhenWrong" : 1.0
+          }, {
+            "dimension" : "requested_outcome",
+            "meanTopProbability" : 1.0,
+            "meanConfidence" : 1.0,
+            "meanMargin" : 1.0,
+            "accuracy" : 0.333333,
+            "meanConfidenceWhenCorrect" : 1.0,
+            "meanConfidenceWhenWrong" : 1.0
+          } ],
+          "meanTaxonomyFitInTaxonomy" : 0.884058,
+          "meanTaxonomyFitOutOfTaxonomy" : 0.666667,
+          "meanMultiIntentWithSecondaryIntent" : 0.333333,
+          "meanMultiIntentSingleIntent" : 0.0
+        }
+      }
+    },
+    "JEV_ONLY" : {
+      "DEV" : {
+        "cases" : 165,
+        "assessedCases" : 165,
+        "providerErrors" : 0,
+        "formalType" : {
+          "macroF1" : 0.85444,
+          "accuracy" : 0.866667,
+          "lenientAccuracy" : 0.915152,
+          "perClass" : [ {
+            "label" : "CLAIM",
+            "support" : 52,
+            "predicted" : 51,
+            "truePositives" : 47,
+            "precision" : 0.921569,
+            "recall" : 0.903846,
+            "f1" : 0.912621
+          }, {
+            "label" : "TECHNICAL_REQUEST",
+            "support" : 23,
+            "predicted" : 26,
+            "truePositives" : 19,
+            "precision" : 0.730769,
+            "recall" : 0.826087,
+            "f1" : 0.77551
+          }, {
+            "label" : "INFORMATION_REQUEST",
+            "support" : 34,
+            "predicted" : 33,
+            "truePositives" : 29,
+            "precision" : 0.878788,
+            "recall" : 0.852941,
+            "f1" : 0.865672
+          }, {
+            "label" : "SERVICE_REQUEST",
+            "support" : 31,
+            "predicted" : 34,
+            "truePositives" : 29,
+            "precision" : 0.852941,
+            "recall" : 0.935484,
+            "f1" : 0.892308
+          }, {
+            "label" : "UNCLASSIFIED",
+            "support" : 25,
+            "predicted" : 21,
+            "truePositives" : 19,
+            "precision" : 0.904762,
+            "recall" : 0.76,
+            "f1" : 0.826087
+          } ],
+          "confusion" : {
+            "CLAIM" : {
+              "CLAIM" : 47,
+              "TECHNICAL_REQUEST" : 1,
+              "INFORMATION_REQUEST" : 2,
+              "SERVICE_REQUEST" : 2,
+              "UNCLASSIFIED" : 0
+            },
+            "TECHNICAL_REQUEST" : {
+              "CLAIM" : 1,
+              "TECHNICAL_REQUEST" : 19,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 1,
+              "UNCLASSIFIED" : 2
+            },
+            "INFORMATION_REQUEST" : {
+              "CLAIM" : 1,
+              "TECHNICAL_REQUEST" : 3,
+              "INFORMATION_REQUEST" : 29,
+              "SERVICE_REQUEST" : 1,
+              "UNCLASSIFIED" : 0
+            },
+            "SERVICE_REQUEST" : {
+              "CLAIM" : 0,
+              "TECHNICAL_REQUEST" : 1,
+              "INFORMATION_REQUEST" : 1,
+              "SERVICE_REQUEST" : 29,
+              "UNCLASSIFIED" : 0
+            },
+            "UNCLASSIFIED" : {
+              "CLAIM" : 2,
+              "TECHNICAL_REQUEST" : 2,
+              "INFORMATION_REQUEST" : 1,
+              "SERVICE_REQUEST" : 1,
+              "UNCLASSIFIED" : 19
+            }
+          }
+        },
+        "semantic" : {
+          "intentMacroF1" : 0.823738,
+          "intentAccuracy" : 0.824242,
+          "domainMacroF1" : 0.91801,
+          "domainAccuracy" : 0.927273,
+          "outcomeAccuracy" : 0.842424
+        },
+        "complaint" : {
+          "goldClaims" : 52,
+          "detected" : 47,
+          "recall" : 0.903846,
+          "falseNegativeRate" : 0.096154,
+          "autoRouted" : 5
+        },
+        "routing" : {
+          "predictedRoutes" : {
+            "DRAFT_PROPOSAL" : 93,
+            "LLM_INVESTIGATION" : 0,
+            "HUMAN_REVIEW" : 51,
+            "ABSTAIN" : 21
+          },
+          "routeAccuracy" : 0.775758,
+          "lenientRouteAccuracy" : 0.824242,
+          "abstainRate" : 0.127273,
+          "humanReviewRate" : 0.309091,
+          "autoRouteCoverage" : 0.563636,
+          "autoRouted" : 93,
+          "wrongAutoRoutes" : 32,
+          "wrongAutoRoutesByStratum" : {
+            "SIMPLE_COMPLAINT" : 1,
+            "SIMPLE_INQUIRY" : 0,
+            "SIMPLE_SERVICE_ACTION" : 1,
+            "SIMPLE_INCIDENT" : 0,
+            "DUPLICATE_CHARGE" : 3,
+            "DISSATISFACTION_WITH_TECHNICAL" : 0,
+            "MULTI_INTENT" : 9,
+            "VAGUE" : 4,
+            "CONTRADICTORY" : 7,
+            "OUT_OF_TAXONOMY" : 0,
+            "NEAR_TIE" : 6,
+            "NO_COMPLAINT_CONTROL" : 1
+          },
+          "wrongAutoRouteRate" : 0.344086,
+          "selectiveAccuracy" : 0.655914,
+          "goldAbstain" : 14,
+          "abstainPrecision" : 0.666667,
+          "abstainRecall" : 1.0
+        },
+        "outOfTaxonomy" : {
+          "goldCases" : 14,
+          "rejected" : 14,
+          "successRate" : 1.0,
+          "autoRouted" : 0,
+          "safeRate" : 1.0
+        },
+        "signals" : {
+          "choices" : [ {
+            "dimension" : "primary_intent",
+            "meanTopProbability" : 0.948424,
+            "meanConfidence" : 0.931455,
+            "meanMargin" : 0.901212,
+            "accuracy" : 0.824242,
+            "meanConfidenceWhenCorrect" : 0.966176,
+            "meanConfidenceWhenWrong" : 0.768621
+          }, {
+            "dimension" : "problem_domain",
+            "meanTopProbability" : 0.938606,
+            "meanConfidence" : 0.923212,
+            "meanMargin" : 0.885273,
+            "accuracy" : 0.927273,
+            "meanConfidenceWhenCorrect" : 0.939542,
+            "meanConfidenceWhenWrong" : 0.715
+          }, {
+            "dimension" : "requested_outcome",
+            "meanTopProbability" : 0.858182,
+            "meanConfidence" : 0.829879,
+            "meanMargin" : 0.75097,
+            "accuracy" : 0.842424,
+            "meanConfidenceWhenCorrect" : 0.867554,
+            "meanConfidenceWhenWrong" : 0.628462
+          } ],
+          "meanTaxonomyFitInTaxonomy" : 0.946093,
+          "meanTaxonomyFitOutOfTaxonomy" : 0.07,
+          "meanMultiIntentWithSecondaryIntent" : 0.905333,
+          "meanMultiIntentSingleIntent" : 0.112
+        }
+      },
+      "TEST" : {
+        "cases" : 75,
+        "assessedCases" : 75,
+        "providerErrors" : 0,
+        "formalType" : {
+          "macroF1" : 0.87175,
+          "accuracy" : 0.866667,
+          "lenientAccuracy" : 0.893333,
+          "perClass" : [ {
+            "label" : "CLAIM",
+            "support" : 28,
+            "predicted" : 24,
+            "truePositives" : 22,
+            "precision" : 0.916667,
+            "recall" : 0.785714,
+            "f1" : 0.846154
+          }, {
+            "label" : "TECHNICAL_REQUEST",
+            "support" : 11,
+            "predicted" : 12,
+            "truePositives" : 11,
+            "precision" : 0.916667,
+            "recall" : 1.0,
+            "f1" : 0.956522
+          }, {
+            "label" : "INFORMATION_REQUEST",
+            "support" : 13,
+            "predicted" : 13,
+            "truePositives" : 12,
+            "precision" : 0.923077,
+            "recall" : 0.923077,
+            "f1" : 0.923077
+          }, {
+            "label" : "SERVICE_REQUEST",
+            "support" : 12,
+            "predicted" : 15,
+            "truePositives" : 11,
+            "precision" : 0.733333,
+            "recall" : 0.916667,
+            "f1" : 0.814815
+          }, {
+            "label" : "UNCLASSIFIED",
+            "support" : 11,
+            "predicted" : 11,
+            "truePositives" : 9,
+            "precision" : 0.818182,
+            "recall" : 0.818182,
+            "f1" : 0.818182
+          } ],
+          "confusion" : {
+            "CLAIM" : {
+              "CLAIM" : 22,
+              "TECHNICAL_REQUEST" : 0,
+              "INFORMATION_REQUEST" : 1,
+              "SERVICE_REQUEST" : 4,
+              "UNCLASSIFIED" : 1
+            },
+            "TECHNICAL_REQUEST" : {
+              "CLAIM" : 0,
+              "TECHNICAL_REQUEST" : 11,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 0,
+              "UNCLASSIFIED" : 0
+            },
+            "INFORMATION_REQUEST" : {
+              "CLAIM" : 0,
+              "TECHNICAL_REQUEST" : 0,
+              "INFORMATION_REQUEST" : 12,
+              "SERVICE_REQUEST" : 0,
+              "UNCLASSIFIED" : 1
+            },
+            "SERVICE_REQUEST" : {
+              "CLAIM" : 0,
+              "TECHNICAL_REQUEST" : 1,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 11,
+              "UNCLASSIFIED" : 0
+            },
+            "UNCLASSIFIED" : {
+              "CLAIM" : 2,
+              "TECHNICAL_REQUEST" : 0,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 0,
+              "UNCLASSIFIED" : 9
+            }
+          }
+        },
+        "semantic" : {
+          "intentMacroF1" : 0.786102,
+          "intentAccuracy" : 0.76,
+          "domainMacroF1" : 0.958288,
+          "domainAccuracy" : 0.973333,
+          "outcomeAccuracy" : 0.8
+        },
+        "complaint" : {
+          "goldClaims" : 28,
+          "detected" : 22,
+          "recall" : 0.785714,
+          "falseNegativeRate" : 0.214286,
+          "autoRouted" : 5
+        },
+        "routing" : {
+          "predictedRoutes" : {
+            "DRAFT_PROPOSAL" : 40,
+            "LLM_INVESTIGATION" : 0,
+            "HUMAN_REVIEW" : 24,
+            "ABSTAIN" : 11
+          },
+          "routeAccuracy" : 0.773333,
+          "lenientRouteAccuracy" : 0.826667,
+          "abstainRate" : 0.146667,
+          "humanReviewRate" : 0.32,
+          "autoRouteCoverage" : 0.533333,
+          "autoRouted" : 40,
+          "wrongAutoRoutes" : 12,
+          "wrongAutoRoutesByStratum" : {
+            "SIMPLE_COMPLAINT" : 2,
+            "SIMPLE_INQUIRY" : 0,
+            "SIMPLE_SERVICE_ACTION" : 0,
+            "SIMPLE_INCIDENT" : 0,
+            "DUPLICATE_CHARGE" : 1,
+            "DISSATISFACTION_WITH_TECHNICAL" : 0,
+            "MULTI_INTENT" : 1,
+            "VAGUE" : 0,
+            "CONTRADICTORY" : 4,
+            "OUT_OF_TAXONOMY" : 0,
+            "NEAR_TIE" : 4,
+            "NO_COMPLAINT_CONTROL" : 0
+          },
+          "wrongAutoRouteRate" : 0.3,
+          "selectiveAccuracy" : 0.7,
+          "goldAbstain" : 6,
+          "abstainPrecision" : 0.545455,
+          "abstainRecall" : 1.0
+        },
+        "outOfTaxonomy" : {
+          "goldCases" : 6,
+          "rejected" : 6,
+          "successRate" : 1.0,
+          "autoRouted" : 0,
+          "safeRate" : 1.0
+        },
+        "signals" : {
+          "choices" : [ {
+            "dimension" : "primary_intent",
+            "meanTopProbability" : 0.9092,
+            "meanConfidence" : 0.8788,
+            "meanMargin" : 0.820933,
+            "accuracy" : 0.76,
+            "meanConfidenceWhenCorrect" : 0.906842,
+            "meanConfidenceWhenWrong" : 0.79
+          }, {
+            "dimension" : "problem_domain",
+            "meanTopProbability" : 0.917067,
+            "meanConfidence" : 0.8964,
+            "meanMargin" : 0.847467,
+            "accuracy" : 0.973333,
+            "meanConfidenceWhenCorrect" : 0.907534,
+            "meanConfidenceWhenWrong" : 0.49
+          }, {
+            "dimension" : "requested_outcome",
+            "meanTopProbability" : 0.865733,
+            "meanConfidence" : 0.838933,
+            "meanMargin" : 0.758933,
+            "accuracy" : 0.8,
+            "meanConfidenceWhenCorrect" : 0.867,
+            "meanConfidenceWhenWrong" : 0.726667
+          } ],
+          "meanTaxonomyFitInTaxonomy" : 0.944203,
+          "meanTaxonomyFitOutOfTaxonomy" : 0.11,
+          "meanMultiIntentWithSecondaryIntent" : 0.86,
+          "meanMultiIntentSingleIntent" : 0.096957
+        }
+      }
+    }
+  },
+  "thresholdExploration" : {
+    "split" : "DEV",
+    "mode" : "JEV_ONLY",
+    "maxWrongAutoRouteRate" : 0.1,
+    "candidates" : [ {
+      "threshold" : "TAXONOMY_FIT_MIN",
+      "value" : null
+    }, {
+      "threshold" : "CHOICE_CONFIDENCE_MIN",
+      "value" : null
+    }, {
+      "threshold" : "CHOICE_MARGIN_MIN",
+      "value" : null
+    }, {
+      "threshold" : "MULTI_INTENT_MAX",
+      "value" : null
+    } ],
+    "heldOutCheck" : {
+      "candidatePolicyVersion" : "v1-candidate",
+      "candidateThresholds" : {
+        "taxonomyFitMin" : 0.0,
+        "choiceConfidenceMin" : 0.0,
+        "choiceMarginMin" : 0.0,
+        "multiIntentMax" : 1.0,
+        "signalMin" : 0.5
+      },
+      "DEV" : {
+        "cases" : 165,
+        "assessedCases" : 165,
+        "providerErrors" : 0,
+        "formalType" : {
+          "macroF1" : 0.85444,
+          "accuracy" : 0.866667,
+          "lenientAccuracy" : 0.915152,
+          "perClass" : [ {
+            "label" : "CLAIM",
+            "support" : 52,
+            "predicted" : 51,
+            "truePositives" : 47,
+            "precision" : 0.921569,
+            "recall" : 0.903846,
+            "f1" : 0.912621
+          }, {
+            "label" : "TECHNICAL_REQUEST",
+            "support" : 23,
+            "predicted" : 26,
+            "truePositives" : 19,
+            "precision" : 0.730769,
+            "recall" : 0.826087,
+            "f1" : 0.77551
+          }, {
+            "label" : "INFORMATION_REQUEST",
+            "support" : 34,
+            "predicted" : 33,
+            "truePositives" : 29,
+            "precision" : 0.878788,
+            "recall" : 0.852941,
+            "f1" : 0.865672
+          }, {
+            "label" : "SERVICE_REQUEST",
+            "support" : 31,
+            "predicted" : 34,
+            "truePositives" : 29,
+            "precision" : 0.852941,
+            "recall" : 0.935484,
+            "f1" : 0.892308
+          }, {
+            "label" : "UNCLASSIFIED",
+            "support" : 25,
+            "predicted" : 21,
+            "truePositives" : 19,
+            "precision" : 0.904762,
+            "recall" : 0.76,
+            "f1" : 0.826087
+          } ],
+          "confusion" : {
+            "CLAIM" : {
+              "CLAIM" : 47,
+              "TECHNICAL_REQUEST" : 1,
+              "INFORMATION_REQUEST" : 2,
+              "SERVICE_REQUEST" : 2,
+              "UNCLASSIFIED" : 0
+            },
+            "TECHNICAL_REQUEST" : {
+              "CLAIM" : 1,
+              "TECHNICAL_REQUEST" : 19,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 1,
+              "UNCLASSIFIED" : 2
+            },
+            "INFORMATION_REQUEST" : {
+              "CLAIM" : 1,
+              "TECHNICAL_REQUEST" : 3,
+              "INFORMATION_REQUEST" : 29,
+              "SERVICE_REQUEST" : 1,
+              "UNCLASSIFIED" : 0
+            },
+            "SERVICE_REQUEST" : {
+              "CLAIM" : 0,
+              "TECHNICAL_REQUEST" : 1,
+              "INFORMATION_REQUEST" : 1,
+              "SERVICE_REQUEST" : 29,
+              "UNCLASSIFIED" : 0
+            },
+            "UNCLASSIFIED" : {
+              "CLAIM" : 2,
+              "TECHNICAL_REQUEST" : 2,
+              "INFORMATION_REQUEST" : 1,
+              "SERVICE_REQUEST" : 1,
+              "UNCLASSIFIED" : 19
+            }
+          }
+        },
+        "semantic" : {
+          "intentMacroF1" : 0.823738,
+          "intentAccuracy" : 0.824242,
+          "domainMacroF1" : 0.91801,
+          "domainAccuracy" : 0.927273,
+          "outcomeAccuracy" : 0.842424
+        },
+        "complaint" : {
+          "goldClaims" : 52,
+          "detected" : 47,
+          "recall" : 0.903846,
+          "falseNegativeRate" : 0.096154,
+          "autoRouted" : 5
+        },
+        "routing" : {
+          "predictedRoutes" : {
+            "DRAFT_PROPOSAL" : 93,
+            "LLM_INVESTIGATION" : 0,
+            "HUMAN_REVIEW" : 51,
+            "ABSTAIN" : 21
+          },
+          "routeAccuracy" : 0.775758,
+          "lenientRouteAccuracy" : 0.824242,
+          "abstainRate" : 0.127273,
+          "humanReviewRate" : 0.309091,
+          "autoRouteCoverage" : 0.563636,
+          "autoRouted" : 93,
+          "wrongAutoRoutes" : 32,
+          "wrongAutoRoutesByStratum" : {
+            "SIMPLE_COMPLAINT" : 1,
+            "SIMPLE_INQUIRY" : 0,
+            "SIMPLE_SERVICE_ACTION" : 1,
+            "SIMPLE_INCIDENT" : 0,
+            "DUPLICATE_CHARGE" : 3,
+            "DISSATISFACTION_WITH_TECHNICAL" : 0,
+            "MULTI_INTENT" : 9,
+            "VAGUE" : 4,
+            "CONTRADICTORY" : 7,
+            "OUT_OF_TAXONOMY" : 0,
+            "NEAR_TIE" : 6,
+            "NO_COMPLAINT_CONTROL" : 1
+          },
+          "wrongAutoRouteRate" : 0.344086,
+          "selectiveAccuracy" : 0.655914,
+          "goldAbstain" : 14,
+          "abstainPrecision" : 0.666667,
+          "abstainRecall" : 1.0
+        },
+        "outOfTaxonomy" : {
+          "goldCases" : 14,
+          "rejected" : 14,
+          "successRate" : 1.0,
+          "autoRouted" : 0,
+          "safeRate" : 1.0
+        },
+        "signals" : {
+          "choices" : [ {
+            "dimension" : "primary_intent",
+            "meanTopProbability" : 0.948424,
+            "meanConfidence" : 0.931455,
+            "meanMargin" : 0.901212,
+            "accuracy" : 0.824242,
+            "meanConfidenceWhenCorrect" : 0.966176,
+            "meanConfidenceWhenWrong" : 0.768621
+          }, {
+            "dimension" : "problem_domain",
+            "meanTopProbability" : 0.938606,
+            "meanConfidence" : 0.923212,
+            "meanMargin" : 0.885273,
+            "accuracy" : 0.927273,
+            "meanConfidenceWhenCorrect" : 0.939542,
+            "meanConfidenceWhenWrong" : 0.715
+          }, {
+            "dimension" : "requested_outcome",
+            "meanTopProbability" : 0.858182,
+            "meanConfidence" : 0.829879,
+            "meanMargin" : 0.75097,
+            "accuracy" : 0.842424,
+            "meanConfidenceWhenCorrect" : 0.867554,
+            "meanConfidenceWhenWrong" : 0.628462
+          } ],
+          "meanTaxonomyFitInTaxonomy" : 0.946093,
+          "meanTaxonomyFitOutOfTaxonomy" : 0.07,
+          "meanMultiIntentWithSecondaryIntent" : 0.905333,
+          "meanMultiIntentSingleIntent" : 0.112
+        }
+      },
+      "TEST" : {
+        "cases" : 75,
+        "assessedCases" : 75,
+        "providerErrors" : 0,
+        "formalType" : {
+          "macroF1" : 0.87175,
+          "accuracy" : 0.866667,
+          "lenientAccuracy" : 0.893333,
+          "perClass" : [ {
+            "label" : "CLAIM",
+            "support" : 28,
+            "predicted" : 24,
+            "truePositives" : 22,
+            "precision" : 0.916667,
+            "recall" : 0.785714,
+            "f1" : 0.846154
+          }, {
+            "label" : "TECHNICAL_REQUEST",
+            "support" : 11,
+            "predicted" : 12,
+            "truePositives" : 11,
+            "precision" : 0.916667,
+            "recall" : 1.0,
+            "f1" : 0.956522
+          }, {
+            "label" : "INFORMATION_REQUEST",
+            "support" : 13,
+            "predicted" : 13,
+            "truePositives" : 12,
+            "precision" : 0.923077,
+            "recall" : 0.923077,
+            "f1" : 0.923077
+          }, {
+            "label" : "SERVICE_REQUEST",
+            "support" : 12,
+            "predicted" : 15,
+            "truePositives" : 11,
+            "precision" : 0.733333,
+            "recall" : 0.916667,
+            "f1" : 0.814815
+          }, {
+            "label" : "UNCLASSIFIED",
+            "support" : 11,
+            "predicted" : 11,
+            "truePositives" : 9,
+            "precision" : 0.818182,
+            "recall" : 0.818182,
+            "f1" : 0.818182
+          } ],
+          "confusion" : {
+            "CLAIM" : {
+              "CLAIM" : 22,
+              "TECHNICAL_REQUEST" : 0,
+              "INFORMATION_REQUEST" : 1,
+              "SERVICE_REQUEST" : 4,
+              "UNCLASSIFIED" : 1
+            },
+            "TECHNICAL_REQUEST" : {
+              "CLAIM" : 0,
+              "TECHNICAL_REQUEST" : 11,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 0,
+              "UNCLASSIFIED" : 0
+            },
+            "INFORMATION_REQUEST" : {
+              "CLAIM" : 0,
+              "TECHNICAL_REQUEST" : 0,
+              "INFORMATION_REQUEST" : 12,
+              "SERVICE_REQUEST" : 0,
+              "UNCLASSIFIED" : 1
+            },
+            "SERVICE_REQUEST" : {
+              "CLAIM" : 0,
+              "TECHNICAL_REQUEST" : 1,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 11,
+              "UNCLASSIFIED" : 0
+            },
+            "UNCLASSIFIED" : {
+              "CLAIM" : 2,
+              "TECHNICAL_REQUEST" : 0,
+              "INFORMATION_REQUEST" : 0,
+              "SERVICE_REQUEST" : 0,
+              "UNCLASSIFIED" : 9
+            }
+          }
+        },
+        "semantic" : {
+          "intentMacroF1" : 0.786102,
+          "intentAccuracy" : 0.76,
+          "domainMacroF1" : 0.958288,
+          "domainAccuracy" : 0.973333,
+          "outcomeAccuracy" : 0.8
+        },
+        "complaint" : {
+          "goldClaims" : 28,
+          "detected" : 22,
+          "recall" : 0.785714,
+          "falseNegativeRate" : 0.214286,
+          "autoRouted" : 5
+        },
+        "routing" : {
+          "predictedRoutes" : {
+            "DRAFT_PROPOSAL" : 40,
+            "LLM_INVESTIGATION" : 0,
+            "HUMAN_REVIEW" : 24,
+            "ABSTAIN" : 11
+          },
+          "routeAccuracy" : 0.773333,
+          "lenientRouteAccuracy" : 0.826667,
+          "abstainRate" : 0.146667,
+          "humanReviewRate" : 0.32,
+          "autoRouteCoverage" : 0.533333,
+          "autoRouted" : 40,
+          "wrongAutoRoutes" : 12,
+          "wrongAutoRoutesByStratum" : {
+            "SIMPLE_COMPLAINT" : 2,
+            "SIMPLE_INQUIRY" : 0,
+            "SIMPLE_SERVICE_ACTION" : 0,
+            "SIMPLE_INCIDENT" : 0,
+            "DUPLICATE_CHARGE" : 1,
+            "DISSATISFACTION_WITH_TECHNICAL" : 0,
+            "MULTI_INTENT" : 1,
+            "VAGUE" : 0,
+            "CONTRADICTORY" : 4,
+            "OUT_OF_TAXONOMY" : 0,
+            "NEAR_TIE" : 4,
+            "NO_COMPLAINT_CONTROL" : 0
+          },
+          "wrongAutoRouteRate" : 0.3,
+          "selectiveAccuracy" : 0.7,
+          "goldAbstain" : 6,
+          "abstainPrecision" : 0.545455,
+          "abstainRecall" : 1.0
+        },
+        "outOfTaxonomy" : {
+          "goldCases" : 6,
+          "rejected" : 6,
+          "successRate" : 1.0,
+          "autoRouted" : 0,
+          "safeRate" : 1.0
+        },
+        "signals" : {
+          "choices" : [ {
+            "dimension" : "primary_intent",
+            "meanTopProbability" : 0.9092,
+            "meanConfidence" : 0.8788,
+            "meanMargin" : 0.820933,
+            "accuracy" : 0.76,
+            "meanConfidenceWhenCorrect" : 0.906842,
+            "meanConfidenceWhenWrong" : 0.79
+          }, {
+            "dimension" : "problem_domain",
+            "meanTopProbability" : 0.917067,
+            "meanConfidence" : 0.8964,
+            "meanMargin" : 0.847467,
+            "accuracy" : 0.973333,
+            "meanConfidenceWhenCorrect" : 0.907534,
+            "meanConfidenceWhenWrong" : 0.49
+          }, {
+            "dimension" : "requested_outcome",
+            "meanTopProbability" : 0.865733,
+            "meanConfidence" : 0.838933,
+            "meanMargin" : 0.758933,
+            "accuracy" : 0.8,
+            "meanConfidenceWhenCorrect" : 0.867,
+            "meanConfidenceWhenWrong" : 0.726667
+          } ],
+          "meanTaxonomyFitInTaxonomy" : 0.944203,
+          "meanTaxonomyFitOutOfTaxonomy" : 0.11,
+          "meanMultiIntentWithSecondaryIntent" : 0.86,
+          "meanMultiIntentSingleIntent" : 0.096957
+        }
+      }
+    }
+  },
+  "cost" : {
+    "calls" : 240,
+    "failedCalls" : 0,
+    "inputTokens" : 191572,
+    "outputTokens" : 58436,
+    "meanInputTokens" : 798.216667,
+    "meanOutputTokens" : 243.483333,
+    "meanAttempts" : 1.0,
+    "latencyP50Ms" : 136,
+    "latencyP95Ms" : 169,
+    "latencyMaxMs" : 619,
+    "priceInputUsdPerMillion" : 0.042,
+    "priceOutputUsdPerMillion" : 0.0,
+    "totalCostUsd" : 0.008046,
+    "costPer1000RequestsUsd" : 0.033525
+  }
+}
