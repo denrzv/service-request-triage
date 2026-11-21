@@ -1,0 +1,21 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "primary_intent": {
+      "type": "choice",
+      "choice": "complaint",
+      "confidence": 0.82,
+      "probabilities": {"complaint": 0.82, "inquiry": 0.1, "action_request": 0.05, "incident_report": 0.03}
+    },
+    "refund_requested": {"type": "noul", "noul": 0.97},
+    "customer_urgency": {
+      "type": "score",
+      "score": 1.7,
+      "confidence": 0.55,
+      "legend": {"0": "No explicit urgency", "1": "Requests timely attention", "2": "Explicit urgent harm"},
+      "probabilities": {"0": 0.1, "1": 0.1, "2": 0.8}
+    }
+  },
+  "usage": {"input_tokens": 549, "output_tokens": 63},
+  "extra_unknown_field": true
+}

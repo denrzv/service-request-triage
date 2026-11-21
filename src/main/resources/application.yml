@@ -25,6 +25,13 @@ triage:
   jev:
     enabled: false
     api-key: ${JEV_API_KEY:}
+    base-url: https://api.typesafe.ai
+    model: jev-latest
+    connect-timeout: 5s
+    request-timeout: 30s
+    max-attempts: 3
+    initial-backoff: 200ms
+    max-backoff: 2s
   deepseek:
     enabled: false
     api-key: ${DEEPSEEK_API_KEY:}
