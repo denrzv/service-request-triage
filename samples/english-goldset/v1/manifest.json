@@ -1,0 +1,73 @@
+{
+  "datasetId": "english-goldset",
+  "version": "v1",
+  "taxonomyVersion": "v1",
+  "synthetic": true,
+  "labelSource": "SYNTHETIC_AUTHOR",
+  "split": {
+    "algorithm": "sha256-rank-per-stratum-v1",
+    "seed": "feature-004-english-goldset-v1",
+    "testFraction": 0.3
+  },
+  "dev": {
+    "path": "dev.jsonl",
+    "records": 165,
+    "sha256": "60c573d4924d83e5436ba0f11367329f0e9160141aaab5d5ea27afb5699b1c29"
+  },
+  "test": {
+    "path": "test.jsonl",
+    "records": 75,
+    "sha256": "bf9aaeee7282ebc69f6272054ecc9e308fb9070f40fc38f57add2b68e4228e55"
+  },
+  "totalRecords": 240,
+  "strata": {
+    "SIMPLE_COMPLAINT": {
+      "dev": 16,
+      "test": 8
+    },
+    "SIMPLE_INQUIRY": {
+      "dev": 17,
+      "test": 7
+    },
+    "SIMPLE_SERVICE_ACTION": {
+      "dev": 17,
+      "test": 7
+    },
+    "SIMPLE_INCIDENT": {
+      "dev": 15,
+      "test": 9
+    },
+    "DUPLICATE_CHARGE": {
+      "dev": 14,
+      "test": 6
+    },
+    "DISSATISFACTION_WITH_TECHNICAL": {
+      "dev": 14,
+      "test": 6
+    },
+    "MULTI_INTENT": {
+      "dev": 14,
+      "test": 6
+    },
+    "VAGUE": {
+      "dev": 11,
+      "test": 5
+    },
+    "CONTRADICTORY": {
+      "dev": 11,
+      "test": 5
+    },
+    "OUT_OF_TAXONOMY": {
+      "dev": 14,
+      "test": 6
+    },
+    "NEAR_TIE": {
+      "dev": 8,
+      "test": 4
+    },
+    "NO_COMPLAINT_CONTROL": {
+      "dev": 14,
+      "test": 6
+    }
+  }
+}

@@ -215,6 +215,35 @@ record TriageGraphState(
 
 Use Spring AI Alibaba's actual `StateGraph` / state update strategy API once pinned. Graph state and domain SR lifecycle state are not the same thing. On resume, verify checkpoints carry state and do not accidentally replay committed mock draft creations. `triageId` is the stable idempotency key for side effects.
 
+## 5a. Evaluation goldset record (FEATURE-004)
+
+Not a runtime contract: the record is read only by test-scoped evaluation code and must never be exposed to
+prompts, providers or tools. `Channel` from section 1 is implemented as `domain.model.Channel`.
+
+```java
+record GoldCase(
+    String caseId,                       // GS-NNNN, non-informative join key
+    String message,                      // synthetic English, untrusted
+    Channel channel,
+    LabelSource labelSource,             // SYNTHETIC_AUTHOR
+    String taxonomyVersion,              // v1
+    Stratum stratum,                     // test design, not a prediction target
+    PrimaryIntent intent,
+    List<PrimaryIntent> secondaryIntents,
+    ProblemDomain domain,
+    RequestedOutcome requestedOutcome,
+    ServiceRequestType formalSrType,
+    String reasonCode,                   // belongs to formalSrType in the taxonomy
+    RouteAction recommendedRoute,        // DRAFT_PROPOSAL | HUMAN_REVIEW | ABSTAIN
+    boolean requiresHumanReview,         // == recommendedRoute != DRAFT_PROPOSAL
+    GoldAlternatives alternatives,       // acceptable alternative labels per dimension
+    String paraphraseGroup,              // PG-NN or null
+    String labelRationale
+) {}
+```
+
+Full schema, invariants and split recipe: `samples/english-goldset/README.md`.
+
 ## 6. Investigation Agent Tool interface
 
 ```java

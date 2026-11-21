@@ -24,6 +24,10 @@ jobs:
           distribution: temurin
           java-version: '25'
           cache: maven
+      - name: Goldset tool tests and frozen-dataset verification
+        run: |
+          python3 tools/test_goldset.py
+          python3 tools/goldset.py verify samples/english-goldset/v1
       - name: Build and test
         run: ./mvnw -B verify
 
