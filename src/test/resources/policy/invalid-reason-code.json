@@ -1,0 +1,41 @@
+{
+  "version": "bad-test",
+  "taxonomyVersion": "v1",
+  "synthetic": true,
+  "calibrated": false,
+  "description": "Illustrative synthetic policy. Thresholds are uncalibrated no-op values (minima 0.0, multi-intent maximum 1.0) until derived from the evaluation goldset; only the categorical rules and the synthetic CLAIM approval rule act. Rule order matters: the first matching rule determines the proposal.",
+  "thresholds": {
+    "taxonomyFitMin": 0.0,
+    "choiceConfidenceMin": 0.0,
+    "choiceMarginMin": 0.0,
+    "multiIntentMax": 1.0,
+    "signalMin": 0.5
+  },
+  "lowTaxonomyFitAction": "ABSTAIN",
+  "noRuleMatchedAction": "ABSTAIN",
+  "maxInvestigations": 1,
+  "humanApprovalTypes": [
+    "CLAIM"
+  ],
+  "rules": [
+    {
+      "id": "R01-COMPLAINT-PAYMENTS",
+      "description": "Complaint about payments is a synthetic payment dispute.",
+      "when": {
+        "primaryIntents": [
+          "COMPLAINT"
+        ],
+        "problemDomains": [
+          "PAYMENTS"
+        ],
+        "requestedOutcomes": [],
+        "refundRequested": "ANY",
+        "technicalProblem": "ANY"
+      },
+      "then": {
+        "serviceRequestType": "CLAIM",
+        "reasonCode": "NOT_IN_TAXONOMY"
+      }
+    }
+  ]
+}

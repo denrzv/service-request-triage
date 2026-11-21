@@ -75,6 +75,8 @@ record TriageResult(
 ) {}
 ```
 
+**Implemented in FEATURE-003 (ADR `FEATURE-003-taxonomy-policy-engine`):** the enums above and the decision records live in `domain.model` with two typed refinements. `ChoiceJudgment<E extends Enum<E>>` has an enum-typed `selected` and enum-keyed `probabilities`, so invalid categories are rejected when a `SemanticAssessment` is built. `RoutingDecision.rationaleCodes` is a `List<RationaleCode>` (closed enum emitted by the engine). `RoutingDecision` also has `policyCalibrated`. `humanApprovalRequired` is true exactly for `HUMAN_REVIEW`, `ABSTAIN` always proposes `UNCLASSIFIED`, and `DRAFT_PROPOSAL` / `LLM_INVESTIGATION` never do. `ClassificationProposal` requires `taxonomyVersion`; `RoutingDecision` requires `policyVersion`. `Taxonomy`, `ReasonCode`, `ClassificationPolicy`, `PolicyThresholds`, `ClassificationRule` and `RuleCondition` model the versioned definitions. `ProposedTaskAction` and `TriageResult` are left for FEATURE-010/012.
+
 **Version and uncertainty invariants:** validate enum mappings, model outputs and probability ranges; do not treat model `confidence` as truth. `UNCLASSIFIED`, `ABSTAIN` and `HUMAN_REVIEW` are normal safe outcomes.
 
 ## 2. Ports (inside the application boundary)
@@ -103,6 +105,8 @@ interface DecisionTracePort { void append(DecisionTraceEvent event); }
 ```
 
 Implement `ClassificationPolicyEngine.decide(assessment, taxonomy, version)` as a **pure Java function** (deterministic, no LLM invocation). Model adapters never directly write Task Management.
+
+**Implemented in FEATURE-003:** `TaxonomyPort.get(version)` and `ClassificationPolicyPort.get(version)` / `active()` (in-memory, loaded from versioned JSON at startup; an unknown version raises `DefinitionNotFoundException`). The engine is `ClassificationPolicyEngine.decide(assessment, taxonomy, policy, investigationAttempts)` plus `modelUnavailable(taxonomy, policy)`. The extra `investigationAttempts` argument lets the pure function enforce the bounded LLM fallback. `ClassificationModelPort`, `InvestigationPort`, `TaskManagementPort` and `DecisionTracePort` are left for later tickets.
 
 ## 3. Jev HTTP request
 
@@ -189,6 +193,8 @@ otherwise:
 ```
 
 All thresholds must live in **versioned** policy files and be **calibrated** with evaluation data. Do not hard-code `0.8` or `0.9` in runtime code as universal guarantees.
+
+**Implemented in FEATURE-003:** the engine order is taxonomy fit, then rule match (none-fit), then multi-intent / low confidence / near-tie (`LLM_INVESTIGATION` while budget remains, else `HUMAN_REVIEW`), then the approval-required type, then `DRAFT_PROPOSAL`. "Provider unavailable" is the separate `modelUnavailable` entry point. Thresholds live in `policy/<version>.json`; v1 is explicitly uncalibrated (`calibrated: false`, no-op values). See README "Taxonomy and policy".
 
 ## 5. Graph state (serialization design)
 
