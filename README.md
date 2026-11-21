@@ -83,6 +83,20 @@ Package layout under `io.github.denrzv.triage`: `api`, `domain.model`, `domain.p
 | Not executed | The GitHub Actions workflow has not run yet (needs a pushed branch/PR); live Jev/DeepSeek calls are not part of this ticket |
 | Follow-up | SAA 1.1.2.1 to 1.1.2.4-security-fix exist and keep Spring AI 1.1.2; evaluate moving off 1.1.2.0 in a separate ticket |
 
+### Continuous integration
+
+GitHub Actions (all actions pinned by commit SHA, least-privilege tokens, superseded runs cancelled, no cloud credentials):
+
+| Job | Workflow | Checks |
+|---|---|---|
+| `build` | `ci.yml` | `./mvnw -B verify` on Java 25 (Enforcer rules, unit and context tests) |
+| `gitleaks` | `ci.yml` | Secret scan over full git history |
+| `aidd-validation` | `ci.yml` | `scripts/check-aidd-pack.py` and `scripts/validate-workflow.py` for the ticket in `docs/.active_ticket` (keep it pointing at a ticket with complete artifacts) |
+| `dependency-review` | `ci.yml` | Pull requests only: fails on newly introduced high-severity vulnerable dependencies |
+| `analyze` | `codeql.yml` | CodeQL for Java on push, pull request and weekly |
+
+Dependabot (`.github/dependabot.yml`) opens weekly Maven and GitHub Actions update pull requests and ignores Spring Boot and Spring AI major versions (ADR-005). These workflows are verified by their run on the pull request, not locally. Not included yet: coverage gate, SonarCloud, branch protection and an opt-in live provider smoke job.
+
 ## Documentation map
 
 - [Architecture](docs/architecture.md) — C4-style context, graph state, branch semantics, responsibility boundaries.
