@@ -1,0 +1,2 @@
+# Frozen goldset files are hashed byte-for-byte; keep LF on every platform.
+samples/english-goldset/** text eol=lf

@@ -124,6 +124,19 @@ The taxonomy and the classification/routing policy are **synthetic, illustrative
 
 **Publishing a new policy version** needs no code change: add a file with a new `version`, list it in `policy-locations`, and set `active-policy-version`. Existing versions stay loadable by `ClassificationPolicyPort.get(version)`; an unknown version raises `DefinitionNotFoundException`. Definitions are validated at startup, and the application does not start if a file has an unknown, missing or duplicate property, an unknown enum name, a threshold outside [0, 1], an unknown reason code or one of another SR type, a duplicate version or rule ID, a missing `synthetic: true` marker, or an active version that is not loaded. The error names the file location.
 
+### English goldset (FEATURE-004)
+
+`samples/english-goldset/v1/` holds 240 hand-authored, **synthetic English** cases labeled in taxonomy `v1` across 12 strata (simple complaint/inquiry/service action/incident, duplicate charge, dissatisfaction with a technical symptom, multi-intent, vague, contradictory, out-of-taxonomy incl. prompt injection, near-tie, no-complaint controls). It is frozen into a development split (`dev.jsonl`, 165) and a **held-out** split (`test.jsonl`, 75) by a seeded, language-neutral hash-rank algorithm; `manifest.json` records the seed and SHA-256 of each file. Schema, labeling guideline and limitations: [dataset README](samples/english-goldset/README.md).
+
+- Labels are never on the runtime classpath: the reader is test-scoped (`evaluation.goldset`) and `GoldsetIsolationTest` fails the build if `src/main`, the compiled main output or test resources reference the dataset, its IDs, label fields or texts.
+- `./mvnw verify` re-validates schema, label invariants, duplicates/near-duplicates, paraphrase groups, balance, hashes and the split recipe (`GoldsetContractTest`).
+- `tools/goldset.py` (Python standard library) offers `validate`, `verify`, `coverage` and `freeze`; `python3 tools/test_goldset.py` tests it. The tool lives in `tools/` because `scripts/` holds the human-maintained AIDD workflow scripts.
+
+```bash
+python3 tools/goldset.py verify samples/english-goldset/v1
+python3 tools/goldset.py coverage samples/english-goldset/v1
+```
+
 ### Compatibility findings (verified 2026-11-21)
 
 | Item | Result |
@@ -145,7 +158,7 @@ GitHub Actions (all actions pinned by commit SHA, least-privilege tokens, supers
 
 | Job | Workflow | Checks |
 |---|---|---|
-| `build` | `ci.yml` | `./mvnw -B verify` on Java 25 (Enforcer rules, unit and context tests) |
+| `build` | `ci.yml` | Goldset tool tests and `tools/goldset.py verify`, then `./mvnw -B verify` on Java 25 (Enforcer rules, unit, context and goldset tests) |
 | `gitleaks` | `ci.yml` | Secret scan over full git history |
 | `aidd-validation` | `ci.yml` | `scripts/check-aidd-pack.py` and `scripts/validate-workflow.py` for the ticket in `docs/.active_ticket` (keep it pointing at a ticket with complete artifacts) |
 | `dependency-review` | `ci.yml` | Pull requests only: fails on newly introduced high-severity vulnerable dependencies |

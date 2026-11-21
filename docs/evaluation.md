@@ -22,6 +22,13 @@ Every record carries `caseId`, `message`, `channel`, `labelSource`, `taxonomyVer
 
 **Goldset is not an agent tool resource**. Use separate folders/explicit test fixture access control.
 
+> **Implemented in FEATURE-004:** `samples/english-goldset/v1/` (240 cases, dev 165 / held-out test 75, seeded
+> hash-rank split with SHA-256 manifest). Records carry the fields above plus `stratum`, `reasonCode`,
+> `secondaryIntents` and `paraphraseGroup`; "allowed alternate labels" are the `alternatives` object. The dataset
+> is outside `src/`, read only by test-scoped code, and `GoldsetIsolationTest` enforces that labels never reach the
+> runtime artifact. Schema, labeling guideline and limitations: `samples/english-goldset/README.md`; decisions:
+> `docs/adr/FEATURE-004-english-goldset.md`.
+
 ## 2. Baselines
 
 | Mode | What executes | Main reason to include |
