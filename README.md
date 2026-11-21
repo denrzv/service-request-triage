@@ -68,6 +68,36 @@ Configuration is environment-only for secrets: copy `.env.example` to an untrack
 
 Package layout under `io.github.denrzv.triage`: `api`, `domain.model`, `domain.port`, `application`, `graph`, `infrastructure.*`; boundaries are enforced by `ArchitectureBoundaryTest`.
 
+### Jev adapter (FEATURE-002)
+
+`JevClassificationPort` (`domain.port`) sends several named Choice / Noul / Score questions in one `POST {base-url}/v1/systemone` call and returns typed answers plus the resolved model, token usage, question-set version, latency and attempt count. The adapter (`infrastructure.typesafe`) makes no routing, taxonomy or task decisions; the taxonomy-aware `ClassificationModelPort` from `docs/contracts.md` is layered on top in later tickets.
+
+| Property (`triage.jev.*`) | Default | Notes |
+|---|---|---|
+| `enabled` | `false` | The bean exists only when `true`; enabled with a blank key fails startup |
+| `api-key` | `${JEV_API_KEY:}` | Environment only; never logged and never part of an exception message |
+| `base-url` / `model` | `https://api.typesafe.ai` / `jev-latest` | The alias may resolve to a different model over time; the resolved model is recorded per call |
+| `connect-timeout` / `request-timeout` | `5s` / `30s` | |
+| `max-attempts` / `initial-backoff` / `max-backoff` | `3` / `200ms` / `2s` | Exponential backoff, capped; a numeric `Retry-After` is honoured up to the cap |
+
+| Outcome | Exception | Retried |
+|---|---|---|
+| HTTP 2xx with valid answers | result | n/a |
+| HTTP 2xx with a missing or malformed answer (never defaulted to 0 confidence) | `JevProtocolException` | no |
+| HTTP 400, 401, 403, 422 and other non-retryable statuses | `JevClientException` | no |
+| HTTP 429, 5xx, I/O error, timeout | `JevUnavailableException` after `max-attempts` | yes, bounded |
+
+The TypeSafe documentation only specifies 200, 400 and 422 responses. Handling of 401, 403, 429 and 5xx (and any `Retry-After`) is by status class and has not been confirmed against the live API. A retried call can be billed again. Offline fixtures under `src/test/resources/jev` are derived from the documented schema, not captured from live traffic.
+
+**Opt-in live smoke test.** It sends one synthetic English message to the real TypeSafe API and checks the response shape only. It is billed per input token by the provider and the message text is shared with that cloud provider, so use synthetic text only.
+
+```bash
+export JEV_API_KEY=...   # never commit it
+JEV_LIVE_SMOKE=true ./mvnw -B -Dtest=JevLiveSmokeTest test
+```
+
+By default (`./mvnw -B verify`) the test is skipped and no key is needed.
+
 ### Compatibility findings (verified 2026-11-21)
 
 | Item | Result |

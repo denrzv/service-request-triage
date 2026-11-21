@@ -169,6 +169,8 @@ Response parsing must handle:
 
 Do not assume all questions have the same response type. An absent or malformed answer is a provider error / human-review path, **not default 0 confidence**.
 
+**Implemented in FEATURE-002 (verified against the TypeSafe OpenAPI 0.2.0 schema):** the lower-level `JevClassificationPort.classify(JevClassificationRequest) -> JevClassificationResult` sits beneath the taxonomy-aware `ClassificationModelPort` above, which FEATURE-003/007 layer on top. The Score `criteria` is an **array** (1 to 10 levels), Choice `criteria` is an object (1 to 255 entries), and Noul has no `confidence`. Score probabilities and `legend` are keyed `"0"`, `"1"`, and so on. Only 200, 400 and 422 responses are documented; other statuses are handled by class (see README, "Jev adapter"). Failures surface as `JevClientException`, `JevUnavailableException` or `JevProtocolException`, which a later graph node maps to `HUMAN_REVIEW` / `MODEL_UNAVAILABLE`.
+
 ## 4. Policy gate (examples only)
 
 ```text
